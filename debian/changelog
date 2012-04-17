@@ -1,3 +1,13 @@
+gst-plugins-ugly1.0 (0.11.90-1) experimental; urgency=low
+
+  * Imported Upstream version 0.11.90
+  * Imported debian/ from gst-plugins-ugly 0.10.19-1
+  * Updated debian/ for GStreamer 1.0
+  * debian/*.install: removed the plugins that have disappeared upstream
+  * debian/*.install: added a new plugin, xingmux
+
+ -- Olivier Naudan <o-naudan@ti.com>  Tue, 17 Apr 2012 15:42:01 -0400
+
 gst-plugins-ugly0.10 (0.10.19-1) unstable; urgency=low
 
   * New upstream stable release, "Stronger":
