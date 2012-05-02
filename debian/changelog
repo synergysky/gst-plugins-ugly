@@ -9,8 +9,9 @@ gst-plugins-ugly1.0 (0.11.90-1) experimental; urgency=low
 
   [ Sebastian Dröge ]
   * Build-depend on GLib >= 2.31.14.
+  * Update copyright.
 
- -- Sebastian Dröge <slomo@debian.org>  Wed, 02 May 2012 20:27:25 +0200
+ -- Sebastian Dröge <slomo@debian.org>  Wed, 02 May 2012 20:29:44 +0200
 
 gst-plugins-ugly0.10 (0.10.19-1) unstable; urgency=low
 
