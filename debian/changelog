@@ -1,6 +1,11 @@
 gst-plugins-ugly1.0 (0.11.91-1) experimental; urgency=low
 
-  * New upstream release, "I’ll grind his bones to make my bread!".
+  * New upstream release, "I’ll grind his bones to make my bread!":
+    + debian/rules,
+      debian/build-deps.in:
+      - Depend on GStreamer core/base >= 0.11.91.
+  * debian/build-deps.in:
+    + Update debhelper, autoconf, automake and libtool dependencies.
 
  -- Sebastian Dröge <slomo@debian.org>  Mon, 21 May 2012 15:16:03 +0200
 
