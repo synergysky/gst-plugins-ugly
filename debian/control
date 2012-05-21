@@ -34,7 +34,7 @@ Build-Depends: autoconf (>= 2.62),
                libtwolame-dev (>= 0.3.10),
                libx264-dev (>= 0.55.0),
                pkg-config (>= 0.11.0)
-Standards-Version: 3.8.4
+Standards-Version: 3.9.3
 Vcs-Git: git://anonscm.debian.org/pkg-gstreamer/gst-plugins-ugly1.0.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-gstreamer/gst-plugins-ugly1.0.git
 Homepage: http://gstreamer.freedesktop.org/modules/gst-plugins-ugly.html
