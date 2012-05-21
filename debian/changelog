@@ -1,3 +1,9 @@
+gst-plugins-ugly1.0 (0.11.91-1) experimental; urgency=low
+
+  * New upstream release, "I’ll grind his bones to make my bread!".
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 21 May 2012 15:16:03 +0200
+
 gst-plugins-ugly1.0 (0.11.90-1) experimental; urgency=low
 
   [ Olivier Naudan ]
