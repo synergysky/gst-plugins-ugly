@@ -1,6 +1,9 @@
 gst-plugins-ugly1.0 (0.11.92-1) experimental; urgency=low
 
-  * New upstream release, "Hey You".
+  * New upstream release, "Hey You":
+    + debian/rules,
+      debian/build-deps.in:
+      - Depend on GStreamer core/base >= 0.11.92.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 08 Jun 2012 13:30:02 +0200
 
