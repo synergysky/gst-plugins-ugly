@@ -45,7 +45,9 @@
 #include <gst/gst.h>
 
 #include <a52dec/a52.h>
-#include <a52dec/mm_accel.h>
+#if !defined(A52_ACCEL_DETECT)
+#  include <a52dec/mm_accel.h>
+#endif
 #include "gsta52dec.h"
 
 #if HAVE_ORC
@@ -136,7 +138,7 @@ gst_a52dec_class_init (GstA52DecClass * klass)
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
   GstAudioDecoderClass *gstbase_class;
-  guint cpuflags;
+  guint cpuflags = 0;
 
   gobject_class = (GObjectClass *) klass;
   gstelement_class = (GstElementClass *) klass;
@@ -199,24 +201,23 @@ gst_a52dec_class_init (GstA52DecClass * klass)
    * generic software djbfft based one when available in the used liba52 */
 #ifdef MM_ACCEL_DJBFFT
   klass->a52_cpuflags = MM_ACCEL_DJBFFT;
+#elif defined(A52_ACCEL_DETECT)
+  klass->a52_cpuflags = A52_ACCEL_DETECT;
 #else
   klass->a52_cpuflags = 0;
 #endif
 
-#if HAVE_ORC
+#if HAVE_ORC && !defined(A52_ACCEL_DETECT)
   cpuflags = orc_target_get_default_flags (orc_target_get_by_name ("mmx"));
-
   if (cpuflags & ORC_TARGET_MMX_MMX)
     klass->a52_cpuflags |= MM_ACCEL_X86_MMX;
   if (cpuflags & ORC_TARGET_MMX_3DNOW)
     klass->a52_cpuflags |= MM_ACCEL_X86_3DNOW;
   if (cpuflags & ORC_TARGET_MMX_MMXEXT)
     klass->a52_cpuflags |= MM_ACCEL_X86_MMXEXT;
-#else
-  cpuflags = 0;
 #endif
 
-  GST_LOG ("CPU flags: a52=%08x, liboil=%08x", klass->a52_cpuflags, cpuflags);
+  GST_LOG ("CPU flags: a52=%08x, orc=%08x", klass->a52_cpuflags, cpuflags);
 }
 
 static void
@@ -245,7 +246,13 @@ gst_a52dec_start (GstAudioDecoder * dec)
   GST_DEBUG_OBJECT (dec, "start");
 
   klass = GST_A52DEC_CLASS (G_OBJECT_GET_CLASS (a52dec));
+#if defined(A52_ACCEL_DETECT)
+  a52dec->state = a52_init ();
+  /* This line is just to avoid being accused of not using klass */
+  a52_accel (klass->a52_cpuflags & A52_ACCEL_DETECT);
+#else
   a52dec->state = a52_init (klass->a52_cpuflags);
+#endif
 
   if (!a52dec->state) {
     GST_ELEMENT_ERROR (GST_ELEMENT (a52dec), LIBRARY, INIT, (NULL),
@@ -491,11 +498,16 @@ gst_a52dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buffer)
   /* update stream information, renegotiate or re-streaminfo if needed */
   need_reneg = FALSE;
   if (a52dec->sample_rate != sample_rate) {
+    GST_DEBUG_OBJECT (a52dec, "sample rate changed");
     need_reneg = TRUE;
     a52dec->sample_rate = sample_rate;
   }
 
   if (flags) {
+    if (a52dec->stream_channels != (flags & (A52_CHANNEL_MASK | A52_LFE))) {
+      GST_DEBUG_OBJECT (a52dec, "stream channel flags changed, marking update");
+      a52dec->flag_update = TRUE;
+    }
     a52dec->stream_channels = flags & (A52_CHANNEL_MASK | A52_LFE);
   }
 
@@ -520,7 +532,8 @@ gst_a52dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buffer)
     if (caps && gst_caps_get_size (caps) > 0) {
       GstCaps *copy = gst_caps_copy_nth (caps, 0);
       GstStructure *structure = gst_caps_get_structure (copy, 0);
-      gint channels;
+      gint orig_channels = flags ? gst_a52dec_channels (flags, NULL) : 6;
+      gint fixed_channels = 0;
       const int a52_channels[6] = {
         A52_MONO,
         A52_STEREO,
@@ -534,12 +547,15 @@ gst_a52dec_handle_frame (GstAudioDecoder * bdec, GstBuffer * buffer)
        * preferred (first in the caps) downstream if possible.
        */
       gst_structure_fixate_field_nearest_int (structure, "channels",
-          flags ? gst_a52dec_channels (flags, NULL) : 6);
-      if (gst_structure_get_int (structure, "channels", &channels)
-          && channels <= 6)
-        flags = a52_channels[channels - 1];
-      else
+          orig_channels);
+
+      if (gst_structure_get_int (structure, "channels", &fixed_channels)
+          && fixed_channels <= 6) {
+        if (fixed_channels < orig_channels)
+          flags = a52_channels[fixed_channels - 1];
+      } else {
         flags = a52_channels[5];
+      }
 
       gst_caps_unref (copy);
     } else if (flags)
