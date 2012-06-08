@@ -27,5 +27,5 @@ libopencore-amrnb-dev
 libopencore-amrwb-dev
 gstreamer@GST_ABI@-doc
 gstreamer@GST_ABI@-plugins-base-doc
-libx264-dev (>= 0.55.0)
+libx264-dev (>= 2:0.106)
 libmp3lame-dev

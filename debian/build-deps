@@ -27,5 +27,5 @@ liborc-0.4-dev (>= 1:0.4.11)
 libsidplay1-dev
 libtool (>= 2.2.6)
 libtwolame-dev (>= 0.3.10)
-libx264-dev (>= 0.55.0)
+libx264-dev (>= 2:0.106)
 pkg-config (>= 0.11.0)
