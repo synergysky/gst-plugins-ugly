@@ -143,7 +143,7 @@ gst_asf_demux_free_stream (GstASFDemux * demux, AsfStream * stream)
 {
   gst_caps_replace (&stream->caps, NULL);
   if (stream->pending_tags) {
-    gst_tag_list_free (stream->pending_tags);
+    gst_tag_list_unref (stream->pending_tags);
     stream->pending_tags = NULL;
   }
   if (stream->pad) {
@@ -186,7 +186,7 @@ gst_asf_demux_reset (GstASFDemux * demux, gboolean chain_reset)
     demux->adapter = NULL;
   }
   if (demux->taglist) {
-    gst_tag_list_free (demux->taglist);
+    gst_tag_list_unref (demux->taglist);
     demux->taglist = NULL;
   }
   if (demux->metadata) {
@@ -337,7 +337,7 @@ gst_asf_demux_activate_mode (GstPad * sinkpad, GstObject * parent,
         demux->streaming = FALSE;
 
         res = gst_pad_start_task (sinkpad, (GstTaskFunction) gst_asf_demux_loop,
-            demux);
+            demux, NULL);
       } else {
         res = gst_pad_stop_task (sinkpad);
       }
@@ -644,8 +644,9 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
       return FALSE;
     }
     /* we can (re)construct the start later on, but not the end */
-    if (stop_type != GST_SEEK_TYPE_NONE) {
-      GST_LOG_OBJECT (demux, "streaming; end type must be NONE");
+    if (stop_type != GST_SEEK_TYPE_NONE &&
+        (stop_type != GST_SEEK_TYPE_SET || GST_CLOCK_TIME_IS_VALID (stop))) {
+      GST_LOG_OBJECT (demux, "streaming; end position must be NONE");
       return FALSE;
     }
     gst_event_ref (event);
@@ -763,7 +764,7 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
 skip:
   /* restart our task since it might have been stopped when we did the flush */
   gst_pad_start_task (demux->sinkpad, (GstTaskFunction) gst_asf_demux_loop,
-      demux);
+      demux, NULL);
 
   /* streaming can continue now */
   GST_PAD_STREAM_UNLOCK (demux->sinkpad);
@@ -1431,15 +1432,17 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
           gst_event_new_segment (&demux->segment));
 
       /* now post any global tags we may have found */
-      if (demux->taglist == NULL)
+      if (demux->taglist == NULL) {
         demux->taglist = gst_tag_list_new_empty ();
+        gst_tag_list_set_scope (demux->taglist, GST_TAG_SCOPE_GLOBAL);
+      }
 
       gst_tag_list_add (demux->taglist, GST_TAG_MERGE_REPLACE,
           GST_TAG_CONTAINER_FORMAT, "ASF", NULL);
 
       GST_DEBUG_OBJECT (demux, "global tags: %" GST_PTR_FORMAT, demux->taglist);
       gst_asf_demux_send_event_unlocked (demux,
-          gst_event_new_tag ("GstDemuxer", demux->taglist));
+          gst_event_new_tag (demux->taglist));
       demux->taglist = NULL;
 
       demux->need_newsegment = FALSE;
@@ -1450,7 +1453,7 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
     if (G_UNLIKELY (stream->pending_tags)) {
       GST_LOG_OBJECT (stream->pad, "%" GST_PTR_FORMAT, stream->pending_tags);
       gst_pad_push_event (stream->pad,
-          gst_event_new_tag ("GstDemuxer", stream->pending_tags));
+          gst_event_new_tag (stream->pending_tags));
       stream->pending_tags = NULL;
     }
 
@@ -1491,8 +1494,8 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
           payload->interlaced);
       stream->interlaced = payload->interlaced;
       stream->caps = gst_caps_make_writable (stream->caps);
-      gst_caps_set_simple (stream->caps, "interlaced", G_TYPE_BOOLEAN,
-          stream->interlaced, NULL);
+      gst_caps_set_simple (stream->caps, "interlace-mode", G_TYPE_BOOLEAN,
+          (stream->interlaced ? "mixed" : "progressive"), NULL);
       gst_pad_set_caps (stream->pad, stream->caps);
     }
 
@@ -1516,8 +1519,13 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
         GST_TIME_ARGS (GST_BUFFER_DURATION (payload->buf)),
         gst_buffer_get_size (payload->buf));
 
-    ret = gst_pad_push (stream->pad, payload->buf);
-    ret = gst_asf_demux_aggregate_flow_return (demux, stream, ret);
+    if (stream->active) {
+      ret = gst_pad_push (stream->pad, payload->buf);
+      ret = gst_asf_demux_aggregate_flow_return (demux, stream, ret);
+    } else {
+      gst_buffer_unref (payload->buf);
+      ret = GST_FLOW_OK;
+    }
     payload->buf = NULL;
     g_array_remove_index (stream->payloads, 0);
 
@@ -1621,9 +1629,9 @@ gst_asf_demux_loop (GstASFDemux * demux)
   }
 
   if (G_LIKELY (demux->speed_packets == 1)) {
-    /* FIXME: maybe we should just skip broken packets and error out only
-     * after a few broken packets in a row? */
-    if (G_UNLIKELY (!gst_asf_demux_parse_packet (demux, buf))) {
+    GstAsfDemuxParsePacketError err;
+    err = gst_asf_demux_parse_packet (demux, buf);
+    if (G_UNLIKELY (err != GST_ASF_DEMUX_PARSE_PACKET_ERROR_NONE)) {
       /* when we don't know when the data object ends, we should check
        * for a chained asf */
       if (demux->num_packets == 0) {
@@ -1635,7 +1643,13 @@ gst_asf_demux_loop (GstASFDemux * demux)
           return;
         }
       }
-      goto parse_error;
+      /* FIXME: We should tally up fatal errors and error out only
+       * after a few broken packets in a row? */
+
+      GST_INFO_OBJECT (demux, "Ignoring recoverable parse error");
+      gst_buffer_unref (buf);
+      ++demux->packet;
+      return;
     }
 
     flow = gst_asf_demux_push_complete_payloads (demux, FALSE);
@@ -1646,13 +1660,13 @@ gst_asf_demux_loop (GstASFDemux * demux)
     guint n;
     for (n = 0; n < demux->speed_packets; n++) {
       GstBuffer *sub;
+      GstAsfDemuxParsePacketError err;
 
       sub =
-          gst_buffer_copy_region (buf, GST_BUFFER_COPY_NONE,
+          gst_buffer_copy_region (buf, GST_BUFFER_COPY_ALL,
           n * demux->packet_size, demux->packet_size);
-      /* FIXME: maybe we should just skip broken packets and error out only
-       * after a few broken packets in a row? */
-      if (G_UNLIKELY (!gst_asf_demux_parse_packet (demux, sub))) {
+      err = gst_asf_demux_parse_packet (demux, sub);
+      if (G_UNLIKELY (err != GST_ASF_DEMUX_PARSE_PACKET_ERROR_NONE)) {
         /* when we don't know when the data object ends, we should check
          * for a chained asf */
         if (demux->num_packets == 0) {
@@ -1665,12 +1679,17 @@ gst_asf_demux_loop (GstASFDemux * demux)
             return;
           }
         }
-        goto parse_error;
+        /* FIXME: We should tally up fatal errors and error out only
+         * after a few broken packets in a row? */
+
+        GST_INFO_OBJECT (demux, "Ignoring recoverable parse error");
+        flow = GST_FLOW_OK;
       }
 
       gst_buffer_unref (sub);
 
-      flow = gst_asf_demux_push_complete_payloads (demux, FALSE);
+      if (err == GST_ASF_DEMUX_PARSE_PACKET_ERROR_NONE)
+        flow = gst_asf_demux_push_complete_payloads (demux, FALSE);
 
       ++demux->packet;
 
@@ -1719,6 +1738,8 @@ eos:
       gst_element_post_message (GST_ELEMENT_CAST (demux),
           gst_message_new_segment_done (GST_OBJECT (demux), GST_FORMAT_TIME,
               stop));
+      gst_asf_demux_send_event_unlocked (demux,
+          gst_event_new_segment_done (GST_FORMAT_TIME, stop));
     } else if (flow != GST_FLOW_EOS) {
       /* check if we have a chained asf, in case, we don't eos yet */
       if (gst_asf_demux_check_chained_asf (demux)) {
@@ -1762,6 +1783,8 @@ read_failed:
     flow = GST_FLOW_EOS;
     goto pause;
   }
+#if 0
+  /* See FIXMEs above */
 parse_error:
   {
     gst_buffer_unref (buf);
@@ -1771,6 +1794,7 @@ parse_error:
     flow = GST_FLOW_ERROR;
     goto pause;
   }
+#endif
 }
 
 #define GST_ASF_DEMUX_CHECK_HEADER_YES       0
@@ -1855,6 +1879,7 @@ gst_asf_demux_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
 
       while (gst_adapter_available (demux->adapter) >= data_size) {
         GstBuffer *buf;
+        GstAsfDemuxParsePacketError err;
 
         /* we don't know the length of the stream
          * check for a chained asf everytime */
@@ -1875,15 +1900,16 @@ gst_asf_demux_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
 
         buf = gst_adapter_take_buffer (demux->adapter, data_size);
 
-        /* FIXME: maybe we should just skip broken packets and error out only
+        /* FIXME: We should tally up fatal errors and error out only
          * after a few broken packets in a row? */
-        if (G_UNLIKELY (!gst_asf_demux_parse_packet (demux, buf))) {
-          GST_WARNING_OBJECT (demux, "Parse error");
-        }
+        err = gst_asf_demux_parse_packet (demux, buf);
 
         gst_buffer_unref (buf);
 
-        ret = gst_asf_demux_push_complete_payloads (demux, FALSE);
+        if (G_LIKELY (err == GST_ASF_DEMUX_PARSE_PACKET_ERROR_NONE))
+          ret = gst_asf_demux_push_complete_payloads (demux, FALSE);
+        else
+          GST_WARNING_OBJECT (demux, "Parse error");
 
         if (demux->packet >= 0)
           ++demux->packet;
@@ -2261,6 +2287,7 @@ gst_asf_demux_add_video_stream (GstASFDemux * demux,
   GstBuffer *extradata = NULL;
   GstPad *src_pad;
   GstCaps *caps;
+  gchar *str;
   gchar *name = NULL;
   gchar *codec_name = NULL;
   gint size_left = video->size - 40;
@@ -2315,7 +2342,9 @@ gst_asf_demux_add_video_stream (GstASFDemux * demux,
   }
 
   /* add fourcc format to caps, some proprietary decoders seem to need it */
-  gst_caps_set_simple (caps, "format", G_TYPE_UINT, video->tag, NULL);
+  str = g_strdup_printf ("%" GST_FOURCC_FORMAT, GST_FOURCC_ARGS (video->tag));
+  gst_caps_set_simple (caps, "format", G_TYPE_STRING, str, NULL);
+  g_free (str);
 
   if (codec_name) {
     tags = gst_tag_list_new (GST_TAG_VIDEO_CODEC, codec_name, NULL);
@@ -2338,10 +2367,19 @@ static void
 gst_asf_demux_activate_stream (GstASFDemux * demux, AsfStream * stream)
 {
   if (!stream->active) {
+    gchar *stream_id;
+
     GST_INFO_OBJECT (demux, "Activating stream %2u, pad %s, caps %"
         GST_PTR_FORMAT, stream->id, GST_PAD_NAME (stream->pad), stream->caps);
     gst_pad_set_active (stream->pad, TRUE);
+
+    stream_id =
+        gst_pad_create_stream_id_printf (stream->pad, GST_ELEMENT_CAST (demux),
+        "%u", stream->id);
+    gst_pad_push_event (stream->pad, gst_event_new_stream_start (stream_id));
+    g_free (stream_id);
     gst_pad_set_caps (stream->pad, stream->caps);
+
     gst_element_add_pad (GST_ELEMENT_CAST (demux), stream->pad);
     stream->active = TRUE;
   }
@@ -2518,7 +2556,7 @@ gst_asf_demux_get_gst_tag_from_tag_name (const gchar * name_utf8)
     "WM/Picture", GST_TAG_IMAGE}, {
     "WM/Track", GST_TAG_TRACK_NUMBER}, {
     "WM/TrackNumber", GST_TAG_TRACK_NUMBER}, {
-    "WM/Year", GST_TAG_DATE}
+    "WM/Year", GST_TAG_DATE_TIME}
     /* { "WM/Composer", GST_TAG_COMPOSER } */
   };
   gsize out;
@@ -2553,14 +2591,15 @@ gst_asf_demux_add_global_tags (GstASFDemux * demux, GstTagList * taglist)
     return;
 
   if (gst_tag_list_is_empty (taglist)) {
-    gst_tag_list_free (taglist);
+    gst_tag_list_unref (taglist);
     return;
   }
 
   t = gst_tag_list_merge (demux->taglist, taglist, GST_TAG_MERGE_APPEND);
+  gst_tag_list_set_scope (t, GST_TAG_SCOPE_GLOBAL);
   if (demux->taglist)
-    gst_tag_list_free (demux->taglist);
-  gst_tag_list_free (taglist);
+    gst_tag_list_unref (demux->taglist);
+  gst_tag_list_unref (taglist);
   demux->taglist = t;
   GST_LOG_OBJECT (demux, "global tags now: %" GST_PTR_FORMAT, demux->taglist);
 }
@@ -2697,13 +2736,12 @@ gst_asf_demux_process_ext_content_desc (GstASFDemux * demux, guint8 * data,
             value_utf8[out] = '\0';
 
             if (gst_tag_name != NULL) {
-              if (strcmp (gst_tag_name, GST_TAG_DATE) == 0) {
+              if (strcmp (gst_tag_name, GST_TAG_DATE_TIME) == 0) {
                 guint year = atoi (value_utf8);
 
                 if (year > 0) {
-                  /* FIXME: really want a GDateTime with just the year field */
-                  g_value_init (&tag_value, G_TYPE_DATE);
-                  g_value_take_boxed (&tag_value, g_date_new_dmy (1, 1, year));
+                  g_value_init (&tag_value, GST_TYPE_DATE_TIME);
+                  g_value_take_boxed (&tag_value, gst_date_time_new_y (year));
                 }
               } else if (strcmp (gst_tag_name, GST_TAG_GENRE) == 0) {
                 guint id3v1_genre_id;
@@ -2819,7 +2857,7 @@ gst_asf_demux_process_ext_content_desc (GstASFDemux * demux, guint8 * data,
 not_enough_data:
   {
     GST_WARNING ("Unexpected end of data parsing ext content desc object");
-    gst_tag_list_free (taglist);
+    gst_tag_list_unref (taglist);
     return GST_FLOW_OK;         /* not really fatal */
   }
 }

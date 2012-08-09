@@ -585,7 +585,7 @@ gst_rmdemux_perform_seek (GstRMDemux * rmdemux, GstEvent * event)
     /* restart our task since it might have been stopped when we did the 
      * flush. */
     gst_pad_start_task (rmdemux->sinkpad, (GstTaskFunction) gst_rmdemux_loop,
-        rmdemux->sinkpad);
+        rmdemux->sinkpad, NULL);
   }
 
 done:
@@ -669,7 +669,7 @@ gst_rmdemux_reset (GstRMDemux * rmdemux)
     gst_rmdemux_stream_clear_cached_subpackets (rmdemux, stream);
     gst_element_remove_pad (GST_ELEMENT (rmdemux), stream->pad);
     if (stream->pending_tags)
-      gst_tag_list_free (stream->pending_tags);
+      gst_tag_list_unref (stream->pending_tags);
     if (stream->subpackets)
       g_ptr_array_free (stream->subpackets, TRUE);
     g_free (stream->index);
@@ -681,7 +681,7 @@ gst_rmdemux_reset (GstRMDemux * rmdemux)
   rmdemux->n_video_streams = 0;
 
   if (rmdemux->pending_tags != NULL) {
-    gst_tag_list_free (rmdemux->pending_tags);
+    gst_tag_list_unref (rmdemux->pending_tags);
     rmdemux->pending_tags = NULL;
   }
 
@@ -791,7 +791,7 @@ gst_rmdemux_sink_activate_mode (GstPad * sinkpad, GstObject * parent,
         demux->data_offset = G_MAXUINT;
         res =
             gst_pad_start_task (sinkpad, (GstTaskFunction) gst_rmdemux_loop,
-            sinkpad);
+            sinkpad, NULL);
       } else {
         res = gst_pad_stop_task (sinkpad);
       }
@@ -922,6 +922,8 @@ need_pause:
         gst_element_post_message (GST_ELEMENT (rmdemux),
             gst_message_new_segment_done (GST_OBJECT (rmdemux),
                 GST_FORMAT_TIME, stop));
+        gst_rmdemux_send_event (rmdemux,
+            gst_event_new_segment_done (GST_FORMAT_TIME, stop));
       } else {
         /* normal playback, send EOS to all linked pads */
         GST_LOG_OBJECT (rmdemux, "Sending EOS, at end of stream");
@@ -1279,6 +1281,7 @@ gst_rmdemux_add_stream (GstRMDemux * rmdemux, GstRMDemuxStream * stream)
   GstCaps *stream_caps = NULL;
   const gchar *codec_tag = NULL;
   gchar *codec_name = NULL;
+  gchar *stream_id;
   int version = 0;
 
   if (stream->subtype == GST_RMDEMUX_STREAM_VIDEO) {
@@ -1477,7 +1480,6 @@ gst_rmdemux_add_stream (GstRMDemux * rmdemux, GstRMDemuxStream * stream)
 
     gst_pad_use_fixed_caps (stream->pad);
 
-    gst_pad_set_caps (stream->pad, stream_caps);
     gst_pad_set_event_function (stream->pad,
         GST_DEBUG_FUNCPTR (gst_rmdemux_src_event));
     gst_pad_set_query_function (stream->pad,
@@ -1486,7 +1488,14 @@ gst_rmdemux_add_stream (GstRMDemux * rmdemux, GstRMDemuxStream * stream)
     GST_DEBUG_OBJECT (rmdemux, "adding pad %s with caps %" GST_PTR_FORMAT
         ", stream_id=%d", GST_PAD_NAME (stream->pad), stream_caps, stream->id);
     gst_pad_set_active (stream->pad, TRUE);
-    gst_element_add_pad (GST_ELEMENT_CAST (rmdemux), stream->pad);
+
+    stream_id =
+        gst_pad_create_stream_id_printf (stream->pad,
+        GST_ELEMENT_CAST (rmdemux), "%u", stream->id);
+    gst_pad_push_event (stream->pad, gst_event_new_stream_start (stream_id));
+    g_free (stream_id);
+
+    gst_pad_set_caps (stream->pad, stream_caps);
 
     codec_name = gst_pb_utils_get_codec_description (stream_caps);
 
@@ -1498,6 +1507,7 @@ gst_rmdemux_add_stream (GstRMDemux * rmdemux, GstRMDemuxStream * stream)
           codec_tag, codec_name, NULL);
       g_free (codec_name);
     }
+    gst_element_add_pad (GST_ELEMENT_CAST (rmdemux), stream->pad);
   }
 
 beach:
@@ -2129,6 +2139,7 @@ gst_rmdemux_handle_scrambled_packet (GstRMDemux * rmdemux,
       ret = gst_rmdemux_descramble_sipr_audio (rmdemux, stream);
       break;
     default:
+      ret = GST_FLOW_ERROR;
       g_assert_not_reached ();
   }
 
@@ -2619,15 +2630,14 @@ gst_rmdemux_parse_packet (GstRMDemux * rmdemux, GstBuffer * in, guint16 version)
 
     if (rmdemux->pending_tags != NULL) {
       gst_rmdemux_send_event (rmdemux,
-          gst_event_new_tag ("GstDemuxer", rmdemux->pending_tags));
+          gst_event_new_tag (rmdemux->pending_tags));
       rmdemux->pending_tags = NULL;
     }
   }
 
   if (stream->pending_tags != NULL) {
     GST_LOG_OBJECT (stream->pad, "tags %" GST_PTR_FORMAT, stream->pending_tags);
-    gst_pad_push_event (stream->pad, gst_event_new_tag ("GstDemuxer",
-            stream->pending_tags));
+    gst_pad_push_event (stream->pad, gst_event_new_tag (stream->pending_tags));
     stream->pending_tags = NULL;
   }
 
