@@ -168,12 +168,6 @@
 <ANCHOR id="GstTwoLame--vbr" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-twolame.html#GstTwoLame--vbr">
 <ANCHOR id="GstTwoLame--vbr-level" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-twolame.html#GstTwoLame--vbr-level">
 <ANCHOR id="GstTwoLame--vbr-max-bitrate" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-twolame.html#GstTwoLame--vbr-max-bitrate">
-<ANCHOR id="gst-plugins-ugly-plugins-synaesthesia" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-synaesthesia.html">
-<ANCHOR id="gst-plugins-ugly-plugins-synaesthesia.synopsis" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-synaesthesia.html#gst-plugins-ugly-plugins-synaesthesia.synopsis">
-<ANCHOR id="gst-plugins-ugly-plugins-synaesthesia.description" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-synaesthesia.html#gst-plugins-ugly-plugins-synaesthesia.description">
-<ANCHOR id="gst-plugins-ugly-plugins-synaesthesia.details" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-synaesthesia.html#gst-plugins-ugly-plugins-synaesthesia.details">
-<ANCHOR id="GstSynaesthesia" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-synaesthesia.html#GstSynaesthesia">
-<ANCHOR id="gst-plugins-ugly-plugins-synaesthesia.see-also" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-synaesthesia.html#gst-plugins-ugly-plugins-synaesthesia.see-also">
 <ANCHOR id="gst-plugins-ugly-plugins-x264enc" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-x264enc.html">
 <ANCHOR id="gst-plugins-ugly-plugins-x264enc.synopsis" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-x264enc.html#gst-plugins-ugly-plugins-x264enc.synopsis">
 <ANCHOR id="GstX264Enc" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-x264enc.html#GstX264Enc">
@@ -256,8 +250,6 @@
 <ANCHOR id="plugin-realmedia" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-realmedia.html#plugin-realmedia">
 <ANCHOR id="gst-plugins-ugly-plugins-plugin-siddec" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-siddec.html">
 <ANCHOR id="plugin-siddec" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-siddec.html#plugin-siddec">
-<ANCHOR id="gst-plugins-ugly-plugins-plugin-synaesthesia" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-synaesthesia.html">
-<ANCHOR id="plugin-synaesthesia" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-synaesthesia.html#plugin-synaesthesia">
 <ANCHOR id="gst-plugins-ugly-plugins-plugin-twolame" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-twolame.html">
 <ANCHOR id="plugin-twolame" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-twolame.html#plugin-twolame">
 <ANCHOR id="gst-plugins-ugly-plugins-plugin-x264" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-x264.html">

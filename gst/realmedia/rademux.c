@@ -127,7 +127,7 @@ gst_real_audio_demux_reset (GstRealAudioDemux * demux)
   }
 
   if (demux->pending_tags) {
-    gst_tag_list_free (demux->pending_tags);
+    gst_tag_list_unref (demux->pending_tags);
     demux->pending_tags = NULL;
   }
 
@@ -224,7 +224,7 @@ gst_real_audio_demux_sink_activate_mode (GstPad * sinkpad, GstObject * parent,
         demux->seekable = TRUE;
 
         res = gst_pad_start_task (sinkpad,
-            (GstTaskFunction) gst_real_audio_demux_loop, demux);
+            (GstTaskFunction) gst_real_audio_demux_loop, demux, NULL);
       } else {
         demux->seekable = FALSE;
         res = gst_pad_stop_task (sinkpad);
@@ -319,6 +319,7 @@ gst_real_audio_demux_parse_header (GstRealAudioDemux * demux)
   const guint8 *data;
   gchar *codec_name = NULL;
   GstCaps *caps = NULL;
+  gchar *stream_id;
   guint avail;
 
   g_assert (demux->ra_version == 4 || demux->ra_version == 3);
@@ -364,6 +365,7 @@ gst_real_audio_demux_parse_header (GstRealAudioDemux * demux)
       demux->fourcc = GST_READ_UINT32_LE (data + 56);
       demux->pending_tags = gst_rm_utils_read_tags (data + 63,
           demux->data_offset - 63, gst_rm_utils_read_string8);
+      gst_tag_list_set_scope (demux->pending_tags, GST_TAG_SCOPE_GLOBAL);
       break;
     default:
       g_assert_not_reached ();
@@ -436,15 +438,22 @@ gst_real_audio_demux_parse_header (GstRealAudioDemux * demux)
 
   GST_INFO_OBJECT (demux, "Adding source pad, caps %" GST_PTR_FORMAT, caps);
   demux->srcpad = gst_pad_new_from_static_template (&src_template, "src");
-  gst_pad_use_fixed_caps (demux->srcpad);
-  gst_pad_set_caps (demux->srcpad, caps);
-  codec_name = gst_pb_utils_get_codec_description (caps);
-  gst_caps_unref (caps);
   gst_pad_set_event_function (demux->srcpad,
       GST_DEBUG_FUNCPTR (gst_real_audio_demux_src_event));
   gst_pad_set_query_function (demux->srcpad,
       GST_DEBUG_FUNCPTR (gst_real_audio_demux_src_query));
   gst_pad_set_active (demux->srcpad, TRUE);
+  gst_pad_use_fixed_caps (demux->srcpad);
+
+  stream_id =
+      gst_pad_create_stream_id (demux->srcpad, GST_ELEMENT_CAST (demux), NULL);
+  gst_pad_push_event (demux->srcpad, gst_event_new_stream_start (stream_id));
+  g_free (stream_id);
+
+  gst_pad_set_caps (demux->srcpad, caps);
+  codec_name = gst_pb_utils_get_codec_description (caps);
+  gst_caps_unref (caps);
+
   gst_element_add_pad (GST_ELEMENT (demux), demux->srcpad);
 
   if (demux->byterate_num > 0 && demux->byterate_denom > 0) {
@@ -469,8 +478,10 @@ gst_real_audio_demux_parse_header (GstRealAudioDemux * demux)
   demux->need_newsegment = TRUE;
 
   if (codec_name) {
-    if (demux->pending_tags == NULL)
+    if (demux->pending_tags == NULL) {
       demux->pending_tags = gst_tag_list_new_empty ();
+      gst_tag_list_set_scope (demux->pending_tags, GST_TAG_SCOPE_GLOBAL);
+    }
 
     gst_tag_list_add (demux->pending_tags, GST_TAG_MERGE_REPLACE,
         GST_TAG_AUDIO_CODEC, codec_name, NULL);
@@ -532,7 +543,7 @@ gst_real_audio_demux_parse_data (GstRealAudioDemux * demux)
 
     if (demux->pending_tags) {
       gst_pad_push_event (demux->srcpad,
-          gst_event_new_tag ("GstDemuxer", demux->pending_tags));
+          gst_event_new_tag (demux->pending_tags));
       demux->pending_tags = NULL;
     }
 
@@ -697,6 +708,8 @@ eos:
       gst_element_post_message (GST_ELEMENT (demux),
           gst_message_new_segment_done (GST_OBJECT (demux), GST_FORMAT_TIME,
               stop));
+      gst_pad_push_event (demux->srcpad,
+          gst_event_new_segment_done (GST_FORMAT_TIME, stop));
     } else {
       /* normal playback, send EOS event downstream */
       GST_DEBUG_OBJECT (demux, "sending EOS event, at end of stream");
@@ -808,7 +821,7 @@ gst_real_audio_demux_handle_seek (GstRealAudioDemux * demux, GstEvent * event)
   demux->segment_running = TRUE;
   /* restart our task since it might have been stopped when we did the flush */
   gst_pad_start_task (demux->sinkpad,
-      (GstTaskFunction) gst_real_audio_demux_loop, demux);
+      (GstTaskFunction) gst_real_audio_demux_loop, demux, NULL);
 
   /* streaming can continue now */
   GST_PAD_STREAM_UNLOCK (demux->sinkpad);

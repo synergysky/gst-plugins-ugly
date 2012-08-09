@@ -77,6 +77,7 @@ enum
   SIGNAL_ON_BYE_SSRC,
   SIGNAL_ON_BYE_TIMEOUT,
   SIGNAL_ON_TIMEOUT,
+  SIGNAL_ON_NPT_STOP,
   LAST_SIGNAL
 };
 
@@ -298,15 +299,16 @@ activate_session (GstRDTManager * rdtmanager, GstRDTManagerSession * session,
   session->recv_rtp_src = gst_pad_new_from_template (templ, name);
   g_free (name);
 
-  gst_pad_set_caps (session->recv_rtp_src, caps);
-  gst_caps_unref (caps);
-
   gst_pad_set_element_private (session->recv_rtp_src, session);
   gst_pad_set_query_function (session->recv_rtp_src, gst_rdt_manager_query_src);
   gst_pad_set_activatemode_function (session->recv_rtp_src,
       gst_rdt_manager_src_activate_mode);
 
   gst_pad_set_active (session->recv_rtp_src, TRUE);
+
+  gst_pad_set_caps (session->recv_rtp_src, caps);
+  gst_caps_unref (caps);
+
   gst_element_add_pad (GST_ELEMENT_CAST (rdtmanager), session->recv_rtp_src);
 
   return TRUE;
@@ -479,6 +481,21 @@ gst_rdt_manager_class_init (GstRDTManagerClass * g_class)
       NULL, NULL, gst_rdt_manager_marshal_VOID__UINT_UINT, G_TYPE_NONE, 2,
       G_TYPE_UINT, G_TYPE_UINT);
 
+  /**
+   * GstRDTManager::on-npt-stop:
+   * @rtpbin: the object which received the signal
+   * @session: the session
+   * @ssrc: the SSRC
+   *
+   * Notify that SSRC sender has sent data up to the configured NPT stop time.
+   */
+  gst_rdt_manager_signals[SIGNAL_ON_NPT_STOP] =
+      g_signal_new ("on-npt-stop", G_TYPE_FROM_CLASS (klass),
+      G_SIGNAL_RUN_LAST, G_STRUCT_OFFSET (GstRDTManagerClass, on_npt_stop),
+      NULL, NULL, gst_rdt_manager_marshal_VOID__UINT_UINT, G_TYPE_NONE, 2,
+      G_TYPE_UINT, G_TYPE_UINT);
+
+
   gstelement_class->provide_clock =
       GST_DEBUG_FUNCPTR (gst_rdt_manager_provide_clock);
   gstelement_class->change_state =
@@ -588,7 +605,7 @@ gst_rdt_manager_src_activate_mode (GstPad * pad, GstObject * parent,
         GST_DEBUG_OBJECT (rdtmanager, "Starting task on srcpad");
         result =
             gst_pad_start_task (pad, (GstTaskFunction) gst_rdt_manager_loop,
-            pad);
+            pad, NULL);
       } else {
         /* make sure all data processing stops ASAP */
         JBUF_LOCK (session);
