@@ -1,3 +1,13 @@
+gst-plugins-ugly1.0 (0.11.94-1) experimental; urgency=low
+
+  * New upstream release:
+    + debian/rules,
+      debian/build-deps.in:
+      - Build-depend on GStreamer core/base >= 0.11.93.
+      - Build-depend on gtk-doc >= 1.12.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 14 Sep 2012 10:39:56 +0200
+
 gst-plugins-ugly1.0 (0.11.93-1) experimental; urgency=low
 
   * New upstream release:
