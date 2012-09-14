@@ -417,8 +417,6 @@ static gboolean gst_x264_enc_init_encoder (GstX264Enc * encoder);
 static void gst_x264_enc_close_encoder (GstX264Enc * encoder);
 
 static GstFlowReturn gst_x264_enc_finish (GstVideoEncoder * encoder);
-static gboolean gst_x264_enc_sink_event (GstVideoEncoder * encoder,
-    GstEvent * event);
 static GstFlowReturn gst_x264_enc_handle_frame (GstVideoEncoder * encoder,
     GstVideoCodecFrame * frame);
 static void gst_x264_enc_flush_frames (GstX264Enc * encoder, gboolean send);
@@ -488,7 +486,6 @@ gst_x264_enc_class_init (GstX264EncClass * klass)
       GST_DEBUG_FUNCPTR (gst_x264_enc_handle_frame);
   gstencoder_class->reset = GST_DEBUG_FUNCPTR (gst_x264_enc_reset);
   gstencoder_class->finish = GST_DEBUG_FUNCPTR (gst_x264_enc_finish);
-  gstencoder_class->sink_event = GST_DEBUG_FUNCPTR (gst_x264_enc_sink_event);
   gstencoder_class->propose_allocation =
       GST_DEBUG_FUNCPTR (gst_x264_enc_propose_allocation);
 
@@ -1173,6 +1170,8 @@ gst_x264_enc_init_encoder (GstX264Enc * encoder)
   }
 
   encoder->reconfig = FALSE;
+  /* good start, will be corrected if needed */
+  encoder->dts_offset = 0;
 
   GST_OBJECT_UNLOCK (encoder);
 
@@ -1332,6 +1331,7 @@ gst_x264_enc_set_src_caps (GstX264Enc * encoder, GstCaps * caps)
   GstCaps *outcaps;
   GstStructure *structure;
   GstVideoCodecState *state;
+  GstTagList *tags;
 
   outcaps = gst_caps_new_empty_simple ("video/x-h264");
   structure = gst_caps_get_structure (outcaps, 0);
@@ -1363,8 +1363,15 @@ gst_x264_enc_set_src_caps (GstX264Enc * encoder, GstCaps * caps)
 
   state = gst_video_encoder_set_output_state (GST_VIDEO_ENCODER (encoder),
       outcaps, encoder->input_state);
-  GST_DEBUG ("here are the caps: %" GST_PTR_FORMAT, state->caps);
+  GST_DEBUG_OBJECT (encoder, "output caps: %" GST_PTR_FORMAT, state->caps);
   gst_video_codec_state_unref (state);
+
+  tags = gst_tag_list_new_empty ();
+  gst_tag_list_add (tags, GST_TAG_MERGE_REPLACE, GST_TAG_ENCODER, "x264",
+      GST_TAG_ENCODER_VERSION, X264_BUILD, NULL);
+  gst_video_encoder_merge_tags (GST_VIDEO_ENCODER (encoder), tags,
+      GST_TAG_MERGE_REPLACE);
+  gst_tag_list_unref (tags);
 
   return TRUE;
 }
@@ -1381,7 +1388,8 @@ gst_x264_enc_set_latency (GstX264Enc * encoder)
     latency = gst_util_uint64_scale_ceil (GST_SECOND * info->fps_d,
         max_delayed_frames, info->fps_n);
 
-    GST_INFO ("Updating latency to %" GST_TIME_FORMAT " (%d frames)",
+    GST_INFO_OBJECT (encoder,
+        "Updating latency to %" GST_TIME_FORMAT " (%d frames)",
         GST_TIME_ARGS (latency), max_delayed_frames);
 
     gst_video_encoder_set_latency (GST_VIDEO_ENCODER (encoder), latency,
@@ -1554,32 +1562,6 @@ gst_x264_enc_propose_allocation (GstVideoEncoder * encoder, GstQuery * query)
       query);
 }
 
-static gboolean
-gst_x264_enc_sink_event (GstVideoEncoder * encoder, GstEvent * event)
-{
-  switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_TAG:{
-      GstTagList *tags = NULL;
-
-      gst_event_parse_tag (event, &tags);
-      tags = gst_tag_list_copy (tags);
-
-      gst_event_take (&event, gst_event_new_tag (tags));
-
-      /* drop codec/video-codec and replace encoder/encoder-version */
-      gst_tag_list_remove_tag (tags, GST_TAG_VIDEO_CODEC);
-      gst_tag_list_remove_tag (tags, GST_TAG_CODEC);
-      gst_tag_list_add (tags, GST_TAG_MERGE_REPLACE, GST_TAG_ENCODER, "x264",
-          GST_TAG_ENCODER_VERSION, X264_BUILD, NULL);
-      break;
-    }
-    default:
-      break;
-  }
-
-  return GST_VIDEO_ENCODER_CLASS (parent_class)->sink_event (encoder, event);
-}
-
 /* chain function
  * this function does the actual processing
  */
@@ -1667,7 +1649,7 @@ gst_x264_enc_encode_frame (GstX264Enc * encoder, x264_picture_t * pic_in,
 
   if (pic_in && input_frame) {
     if (GST_VIDEO_CODEC_FRAME_IS_FORCE_KEYFRAME (input_frame)) {
-      GST_INFO ("Forcing key frame");
+      GST_INFO_OBJECT (encoder, "Forcing key frame");
       if (encoder->intra_refresh)
         x264_encoder_intra_refresh (encoder->x264enc);
       else
@@ -1720,14 +1702,27 @@ gst_x264_enc_encode_frame (GstX264Enc * encoder, x264_picture_t * pic_in,
       "output: dts %" G_GINT64_FORMAT " pts %" G_GINT64_FORMAT,
       (gint64) pic_out.i_dts, (gint64) pic_out.i_pts);
 
-  if (pic_out.i_dts < 0)
+  /* we want to know if x264 is messing around with this */
+  g_assert (frame->pts == pic_out.i_pts);
+  if (pic_out.b_keyframe) {
+    /* expect dts == pts, and also positive ts,
+     * so arrange for an offset if needed */
+    if (pic_out.i_dts + encoder->dts_offset != pic_out.i_pts) {
+      encoder->dts_offset = pic_out.i_pts - pic_out.i_dts;
+      GST_DEBUG_OBJECT (encoder, "determined dts offset %" G_GINT64_FORMAT,
+          encoder->dts_offset);
+    }
+  }
+
+  frame->dts = pic_out.i_dts + encoder->dts_offset;
+  /* should be ok now, surprise if not */
+  if (frame->dts < 0) {
+    GST_WARNING_OBJECT (encoder, "negative dts after offset compensation");
     frame->dts = GST_CLOCK_TIME_NONE;
-  else
-    frame->dts = pic_out.i_dts;
-  frame->pts = pic_out.i_pts;
+  }
 
   if (pic_out.b_keyframe) {
-    GST_INFO ("Output keyframe");
+    GST_DEBUG_OBJECT (encoder, "Output keyframe");
     GST_VIDEO_CODEC_FRAME_SET_SYNC_POINT (frame);
   }
 
