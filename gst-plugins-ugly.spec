@@ -4,7 +4,7 @@
 %define gst_minver  0.11.0
 
 Name: 		%{gstreamer}-plugins-ugly
-Version: 	0.11.93
+Version: 	0.11.94
 Release: 	1.gst
 Summary: 	GStreamer streaming media framework "ugly" plug-ins
 
@@ -12,7 +12,7 @@ Group: 		Applications/Multimedia
 License: 	LGPL
 URL:		http://gstreamer.freedesktop.org/
 Vendor:         GStreamer Backpackers Team <package@gstreamer.freedesktop.org>
-Source:         http://gstreamer.freedesktop.org/src/gst-plugins-ugly/gst-plugins-ugly-%{version}.tar.gz
+Source:         http://gstreamer.freedesktop.org/src/gst-plugins-ugly/gst-plugins-ugly-%{version}.tar.xz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires: 	%{gstreamer} >= %{gst_minver}

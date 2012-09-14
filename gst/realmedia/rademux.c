@@ -189,7 +189,8 @@ gst_real_audio_demux_sink_activate (GstPad * sinkpad, GstObject * parent)
     goto activate_push;
   }
 
-  pull_mode = gst_query_has_scheduling_mode (query, GST_PAD_MODE_PULL);
+  pull_mode = gst_query_has_scheduling_mode_with_flags (query,
+      GST_PAD_MODE_PULL, GST_SCHEDULING_FLAG_SEEKABLE);
   gst_query_unref (query);
 
   if (!pull_mode)
@@ -365,7 +366,8 @@ gst_real_audio_demux_parse_header (GstRealAudioDemux * demux)
       demux->fourcc = GST_READ_UINT32_LE (data + 56);
       demux->pending_tags = gst_rm_utils_read_tags (data + 63,
           demux->data_offset - 63, gst_rm_utils_read_string8);
-      gst_tag_list_set_scope (demux->pending_tags, GST_TAG_SCOPE_GLOBAL);
+      if (demux->pending_tags)
+        gst_tag_list_set_scope (demux->pending_tags, GST_TAG_SCOPE_GLOBAL);
       break;
     default:
       g_assert_not_reached ();
