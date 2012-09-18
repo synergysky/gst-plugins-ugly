@@ -11,13 +11,13 @@ dpkg-dev (>= 1.15.1)
 gstreamer@GST_ABI@-doc
 gstreamer@GST_ABI@-plugins-base
 gstreamer@GST_ABI@-plugins-base-doc
-gstreamer@GST_ABI@-tools (>= 0.11.94)
+gstreamer@GST_ABI@-tools (>= 0.11.99)
 gtk-doc-tools (>= 1.12)
 liba52-0.7.4-dev
 libcdio-dev (>= 0.76)
 libdvdread-dev (>= 0.9.0)
 libglib2.0-dev (>= 2.32)
-libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.94)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 0.11.99)
 libmad0-dev (>= 0.15)
 libmp3lame-dev
 libmpeg2-4-dev (>= 0.4.0)
