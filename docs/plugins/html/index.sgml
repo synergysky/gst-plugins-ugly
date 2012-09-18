@@ -108,6 +108,7 @@
 <ANCHOR id="GstRDTManager-on-bye-timeout" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-on-bye-timeout">
 <ANCHOR id="GstRDTManager-on-timeout" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-on-timeout">
 <ANCHOR id="GstRDTManager-request-pt-map" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-request-pt-map">
+<ANCHOR id="GstRDTManager-on-npt-stop" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-on-npt-stop">
 <ANCHOR id="gst-plugins-ugly-plugins-rdtmanager.see-also" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rdtmanager.html#gst-plugins-ugly-plugins-rdtmanager.see-also">
 <ANCHOR id="gst-plugins-ugly-plugins-rtspreal" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rtspreal.html">
 <ANCHOR id="gst-plugins-ugly-plugins-rtspreal.synopsis" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rtspreal.html#gst-plugins-ugly-plugins-rtspreal.synopsis">
