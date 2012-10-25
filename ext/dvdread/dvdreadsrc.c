@@ -510,6 +510,9 @@ gst_dvd_read_src_goto_title (GstDvdReadSrc * src, gint title, gint angle)
     t = g_strdup_printf ("audio-%d-format", i);
     gst_structure_set (s, t, G_TYPE_INT, (int) a->audio_format, NULL);
     g_free (t);
+    t = g_strdup_printf ("audio-%d-stream", i);
+    gst_structure_set (s, t, G_TYPE_INT, (int) i, NULL);
+    g_free (t);
 
     if (a->lang_type) {
       t = g_strdup_printf ("audio-%d-language", i);
@@ -547,10 +550,15 @@ gst_dvd_read_src_goto_title (GstDvdReadSrc * src, gint title, gint angle)
     }
 
     if (u->type) {
-      t = g_strdup_printf ("subtitle-%d-language", sid);
+      t = g_strdup_printf ("subpicture-%d-language", i);
       lang_code[0] = (u->lang_code >> 8) & 0xff;
       lang_code[1] = u->lang_code & 0xff;
       gst_structure_set (s, t, G_TYPE_STRING, lang_code, NULL);
+      t = g_strdup_printf ("subpicture-%d-stream", i);
+      gst_structure_set (s, t, G_TYPE_INT, (int) sid, NULL);
+      g_free (t);
+      t = g_strdup_printf ("subpicture-%d-format", i);
+      gst_structure_set (s, t, G_TYPE_INT, (int) 0, NULL);
       g_free (t);
     } else {
       lang_code[0] = '\0';
@@ -1614,16 +1622,16 @@ gst_dvd_read_src_goto_sector (GstDvdReadSrc * src, int angle)
       gint first = src->cur_pgc->cell_playback[cur].first_sector;
       gint last = src->cur_pgc->cell_playback[cur].last_sector;
       GST_DEBUG_OBJECT (src, "Cell %d sector bounds: %d %d", cur, first, last);
+      cur = next;
+      if (src->cur_pgc->cell_playback[cur].block_type == BLOCK_TYPE_ANGLE_BLOCK)
+        cur += angle;
+      next = gst_dvd_read_src_get_next_cell (src, src->cur_pgc, cur);
       /* seeking to 0 should end up at first chapter in any case */
       if ((seek_to >= first && seek_to <= last) || (seek_to == 0 && i == 0)) {
         GST_DEBUG_OBJECT (src, "Seek target found in chapter %d", i);
         chapter = i;
         goto done;
       }
-      cur = next;
-      if (src->cur_pgc->cell_playback[cur].block_type == BLOCK_TYPE_ANGLE_BLOCK)
-        cur += angle;
-      next = gst_dvd_read_src_get_next_cell (src, src->cur_pgc, cur);
     }
   }
 
