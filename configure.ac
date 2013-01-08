@@ -5,7 +5,7 @@ dnl please read gstreamer/docs/random/autotools before changing this file
 dnl initialize autoconf
 dnl releases only do -Wall, cvs and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for cvs/prerelease
-AC_INIT(GStreamer Ugly Plug-ins, 1.0.4,
+AC_INIT(GStreamer Ugly Plug-ins, 1.0.5,
     http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
     gst-plugins-ugly)
 
@@ -24,7 +24,7 @@ dnl can autoconf find the source ?
 AC_CONFIG_SRCDIR([ext/mad/gstmad.c])
 
 dnl define the output header for config
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 
 dnl AM_MAINTAINER_MODE only provides the option to configure to enable it
 AM_MAINTAINER_MODE([enable])
@@ -44,7 +44,7 @@ AC_SUBST(GST_API_VERSION)
 AC_DEFINE_UNQUOTED(GST_API_VERSION, "$GST_API_VERSION",
   [GStreamer API Version])
 
-AS_LIBTOOL(GST, 4, 0, 4)
+AS_LIBTOOL(GST, 5, 0, 5)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.0.0
