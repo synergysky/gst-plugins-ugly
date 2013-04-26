@@ -58,6 +58,9 @@
 /* GStreamer package release date/time for plugins as YYYY-MM-DD */
 #undef GST_PACKAGE_RELEASE_DATETIME
 
+/* Define if static plugins should be built */
+#undef GST_PLUGIN_BUILD_STATIC
+
 /* Define to enable a52dec (used by a52dec). */
 #undef HAVE_A52DEC
 
