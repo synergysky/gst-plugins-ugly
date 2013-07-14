@@ -251,7 +251,7 @@
 #define PACKAGE_NAME "GStreamer Ugly Plug-ins"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "GStreamer Ugly Plug-ins 1.0.8"
+#define PACKAGE_STRING "GStreamer Ugly Plug-ins 1.1.2"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gst-plugins-ugly"
@@ -260,7 +260,7 @@
 #undef PACKAGE_URL
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.0.8"
+#define PACKAGE_VERSION "1.1.2"
 
 /* directory where plugins are located */
 #ifdef _DEBUG
@@ -291,7 +291,7 @@
 #undef TARGET_CPU
 
 /* Version number of package */
-#define VERSION "1.0.8"
+#define VERSION "1.1.2"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

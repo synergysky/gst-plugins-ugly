@@ -1,5 +1,5 @@
 
-Release notes for GStreamer Ugly Plugins 1.0.8
+Release notes for GStreamer Ugly Plugins 1.1.2
 
 The GStreamer team is proud to announce a new bug-fix release
 in the 1.x stable series of the
@@ -58,10 +58,10 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Features of this release
     
-      * lamemp3enc: fix timestamping of outgoing buffers if the encoder resamples internally, which fixes transcoding pipelines deadlocking after a while
 
-There were no bugs fixed in this release
-    
+Bugs fixed in this release
+     
+      * 702502 : [regression] mpeg2dec:  gst_segment_to_stream_time: assertion `segment- > format == format' failed
 
 ==== Download ====
 
@@ -99,6 +99,6 @@ subscribe to the gstreamer-devel list.
 Contributors to this release
     
       * Mark Nauwelaerts
-      * Olivier Crête
-      * Sreerenj Balachandran
+      * Sebastian Dröge
+      * Wim Taymans
  
