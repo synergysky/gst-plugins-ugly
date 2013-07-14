@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 /* TODO:
@@ -2376,7 +2376,7 @@ gst_asf_demux_activate_stream (GstASFDemux * demux, AsfStream * stream)
 
     stream_id =
         gst_pad_create_stream_id_printf (stream->pad, GST_ELEMENT_CAST (demux),
-        "%u", stream->id);
+        "%03u", stream->id);
     gst_pad_push_event (stream->pad, gst_event_new_stream_start (stream_id));
     g_free (stream_id);
     gst_pad_set_caps (stream->pad, stream->caps);
