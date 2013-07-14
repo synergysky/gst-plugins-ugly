@@ -16,13 +16,13 @@ liba52-0.7.4-dev
 libcdio-dev (>= 0.76)
 libdvdread-dev (>= 0.9.0)
 libglib2.0-dev (>= 2.32)
-libgstreamer-plugins-base@GST_ABI@-dev (>= 1.0.0)
+libgstreamer-plugins-base@GST_ABI@-dev (>= 1.1.2)
 libmad0-dev (>= 0.15)
 libmp3lame-dev
 libmpeg2-4-dev (>= 0.4.0)
 libopencore-amrnb-dev
 libopencore-amrwb-dev
-liborc-0.4-dev (>= 1:0.4.16)
+liborc-0.4-dev (>= 1:0.4.17)
 libsidplay1-dev
 libtool (>= 2.2.6)
 libtwolame-dev (>= 0.3.10)
