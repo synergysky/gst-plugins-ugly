@@ -417,7 +417,9 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     );
 
 static void gst_x264_enc_finalize (GObject * object);
-static gboolean gst_x264_enc_reset (GstVideoEncoder * encoder, gboolean hard);
+static gboolean gst_x264_enc_start (GstVideoEncoder * encoder);
+static gboolean gst_x264_enc_stop (GstVideoEncoder * encoder);
+static gboolean gst_x264_enc_flush (GstVideoEncoder * encoder);
 
 static gboolean gst_x264_enc_init_encoder (GstX264Enc * encoder);
 static void gst_x264_enc_close_encoder (GstX264Enc * encoder);
@@ -596,7 +598,9 @@ gst_x264_enc_class_init (GstX264EncClass * klass)
   gstencoder_class->set_format = GST_DEBUG_FUNCPTR (gst_x264_enc_set_format);
   gstencoder_class->handle_frame =
       GST_DEBUG_FUNCPTR (gst_x264_enc_handle_frame);
-  gstencoder_class->reset = GST_DEBUG_FUNCPTR (gst_x264_enc_reset);
+  gstencoder_class->start = GST_DEBUG_FUNCPTR (gst_x264_enc_start);
+  gstencoder_class->stop = GST_DEBUG_FUNCPTR (gst_x264_enc_stop);
+  gstencoder_class->flush = GST_DEBUG_FUNCPTR (gst_x264_enc_flush);
   gstencoder_class->finish = GST_DEBUG_FUNCPTR (gst_x264_enc_finish);
   gstencoder_class->getcaps = GST_DEBUG_FUNCPTR (gst_x264_enc_sink_getcaps);
   gstencoder_class->propose_allocation =
@@ -989,23 +993,42 @@ gst_x264_enc_dequeue_all_frames (GstX264Enc * enc)
 }
 
 static gboolean
-gst_x264_enc_reset (GstVideoEncoder * encoder, gboolean hard)
+gst_x264_enc_start (GstVideoEncoder * encoder)
+{
+  GstX264Enc *x264enc = GST_X264_ENC (encoder);
+
+  x264enc->current_byte_stream = GST_X264_ENC_STREAM_FORMAT_FROM_PROPERTY;
+
+  return TRUE;
+}
+
+static gboolean
+gst_x264_enc_stop (GstVideoEncoder * encoder)
 {
   GstX264Enc *x264enc = GST_X264_ENC (encoder);
 
   gst_x264_enc_flush_frames (x264enc, FALSE);
   gst_x264_enc_close_encoder (x264enc);
-
-  if (hard) {
-    if (x264enc->input_state)
-      gst_video_codec_state_unref (x264enc->input_state);
-    x264enc->input_state = NULL;
-    x264enc->current_byte_stream = GST_X264_ENC_STREAM_FORMAT_FROM_PROPERTY;
-  } else {
-    gst_x264_enc_init_encoder (x264enc);
-  }
-
   gst_x264_enc_dequeue_all_frames (x264enc);
+
+  if (x264enc->input_state)
+    gst_video_codec_state_unref (x264enc->input_state);
+  x264enc->input_state = NULL;
+
+  return TRUE;
+}
+
+
+static gboolean
+gst_x264_enc_flush (GstVideoEncoder * encoder)
+{
+  GstX264Enc *x264enc = GST_X264_ENC (encoder);
+
+  gst_x264_enc_flush_frames (x264enc, FALSE);
+  gst_x264_enc_close_encoder (x264enc);
+  gst_x264_enc_dequeue_all_frames (x264enc);
+
+  gst_x264_enc_init_encoder (x264enc);
 
   return TRUE;
 }
@@ -1336,9 +1359,7 @@ gst_x264_enc_init_encoder (GstX264Enc * encoder)
 
     if (encoder->peer_level->frame_only) {
       encoder->x264param.b_interlaced = FALSE;
-#if X264_BUILD >= 95
       encoder->x264param.b_fake_interlaced = FALSE;
-#endif
     }
   }
 
@@ -1384,7 +1405,11 @@ gst_x264_enc_set_profile_and_level (GstX264Enc * encoder, GstCaps * caps)
   int header_return;
   gint sps_ni = 0;
   guint8 *sps;
-
+  GstStructure *s;
+  const gchar *profile;
+  GstCaps *allowed_caps;
+  GstStructure *s2;
+  const gchar *allowed_profile;
 
   header_return = x264_encoder_headers (encoder->x264enc, &nal, &i_nal);
   if (header_return < 0) {
@@ -1402,6 +1427,45 @@ gst_x264_enc_set_profile_and_level (GstX264Enc * encoder, GstCaps * caps)
   sps++;
 
   gst_codec_utils_h264_caps_set_level_and_profile (caps, sps, 3);
+
+  /* Constrained baseline is a strict subset of baseline. If downstream
+   * wanted baseline and we produced constrained baseline, we can just
+   * set the profile to baseline in the caps to make negotiation happy.
+   * Same goes for baseline as subset of main profile and main as a subset
+   * of high profile.
+   */
+  s = gst_caps_get_structure (caps, 0);
+  profile = gst_structure_get_string (s, "profile");
+
+  allowed_caps = gst_pad_get_allowed_caps (GST_VIDEO_ENCODER_SRC_PAD (encoder));
+  if (!gst_caps_can_intersect (allowed_caps, caps)) {
+    allowed_caps = gst_caps_make_writable (allowed_caps);
+    allowed_caps = gst_caps_truncate (allowed_caps);
+    s2 = gst_caps_get_structure (allowed_caps, 0);
+    gst_structure_fixate_field_string (s2, "profile", profile);
+    allowed_profile = gst_structure_get_string (s2, "profile");
+    if (!strcmp (allowed_profile, "high")) {
+      if (!strcmp (profile, "constrained-baseline")
+          || !strcmp (profile, "baseline") || !strcmp (profile, "main")) {
+        gst_structure_set (s, "profile", G_TYPE_STRING, "high", NULL);
+        GST_INFO_OBJECT (encoder, "downstream requested high profile, but "
+            "encoder will now output %s profile (which is a subset), due "
+            "to how it's been configured", profile);
+      }
+    } else if (!strcmp (allowed_profile, "main")) {
+      if (!strcmp (profile, "constrained-baseline")
+          || !strcmp (profile, "baseline")) {
+        gst_structure_set (s, "profile", G_TYPE_STRING, "main", NULL);
+        GST_INFO_OBJECT (encoder, "downstream requested main profile, but "
+            "encoder will now output %s profile (which is a subset), due "
+            "to how it's been configured", profile);
+      }
+    } else if (!strcmp (allowed_profile, "baseline")) {
+      if (!strcmp (profile, "constrained-baseline"))
+        gst_structure_set (s, "profile", G_TYPE_STRING, "baseline", NULL);
+    }
+  }
+  gst_caps_unref (allowed_caps);
 
   return TRUE;
 }
@@ -1916,7 +1980,7 @@ gst_x264_enc_encode_frame (GstX264Enc * encoder, x264_picture_t * pic_in,
 out:
   if (frame) {
     gst_x264_enc_dequeue_frame (encoder, frame);
-    gst_video_encoder_finish_frame (GST_VIDEO_ENCODER (encoder), frame);
+    ret = gst_video_encoder_finish_frame (GST_VIDEO_ENCODER (encoder), frame);
   }
 
   return ret;
