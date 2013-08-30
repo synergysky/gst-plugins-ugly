@@ -5,12 +5,12 @@ dnl please read gstreamer/docs/random/autotools before changing this file
 dnl initialize autoconf
 dnl releases only do -Wall, cvs and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for cvs/prerelease
-AC_INIT([GStreamer Ugly Plug-ins],[1.1.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-ugly])
+AC_INIT([GStreamer Ugly Plug-ins],[1.1.4],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-ugly])
 
 AG_GST_INIT
 
 dnl initialize automake
-AM_INIT_AUTOMAKE([-Wno-portability 1.11 no-dist-gzip dist-xz tar-ustar])
+AM_INIT_AUTOMAKE([-Wno-portability 1.11 no-dist-gzip dist-xz tar-ustar subdir-objects])
 
 dnl define PACKAGE_VERSION_* variables
 AS_VERSION
@@ -42,11 +42,11 @@ AC_SUBST(GST_API_VERSION)
 AC_DEFINE_UNQUOTED(GST_API_VERSION, "$GST_API_VERSION",
   [GStreamer API Version])
 
-AS_LIBTOOL(GST, 103, 0, 103)
+AS_LIBTOOL(GST, 104, 0, 104)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.1.3
-GSTPB_REQ=1.1.3
+GST_REQ=1.1.4
+GSTPB_REQ=1.1.4
 
 dnl *** autotools stuff ****
 
@@ -369,7 +369,7 @@ AG_GST_CHECK_FEATURE(TWOLAME, [twolame], twolame, [
 dnl *** x264 (MPEG-4 part 10/h.264/AVC encoder) ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_X264, true)
 AG_GST_CHECK_FEATURE(X264, [x264 plug-in], x264, [
-  AG_GST_PKG_CHECK_MODULES(X264, x264 >= 0.120.0)
+  AG_GST_PKG_CHECK_MODULES(X264, x264 >= 0.120)
 ])
 
 else
