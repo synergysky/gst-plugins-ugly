@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 
@@ -110,7 +110,8 @@ typedef struct
 
   /* extended stream properties (optional) */
   AsfStreamExtProps  ext_props;
-
+  
+  gboolean     inspect_payload;
 } AsfStream;
 
 typedef enum {
@@ -128,6 +129,9 @@ struct _GstASFDemux {
   GstElement 	     element;
 
   GstPad            *sinkpad;
+
+  gboolean           have_group_id;
+  guint              group_id;
 
   GstAdapter        *adapter;
   GstTagList        *taglist;
@@ -164,10 +168,9 @@ struct _GstASFDemux {
   AsfStream            old_stream[GST_ASF_DEMUX_NUM_STREAMS];
   gboolean             old_num_streams;
 
-  GstClockTime         first_ts;        /* first timestamp found        */
+  GstClockTime         first_ts;        /* smallest timestamp found        */
 
   guint32              packet_size;
-  guint32              timestamp;       /* in milliseconds              */
   guint64              play_time;
 
   guint64              preroll;
@@ -179,6 +182,7 @@ struct _GstASFDemux {
   gboolean             accurate;
 
   gboolean             need_newsegment;  /* do we need to send a new-segment event? */
+  guint32              segment_seqnum;   /* if the new segment must have this seqnum */
   GstClockTime         segment_ts;       /* streaming; timestamp for segment start */
   GstSegment           in_segment;       /* streaming; upstream segment info */
   GstClockTime         in_gap;           /* streaming; upstream initial segment gap for interpolation */
@@ -199,6 +203,8 @@ struct _GstASFDemux {
   GstClockTime         sidx_interval;    /* interval between entries in ns */
   guint                sidx_num_entries; /* number of index entries        */
   AsfSimpleIndexEntry *sidx_entries;     /* packet number for each entry   */
+  
+  GSList              *other_streams;    /* remember streams that are in header but have unknown type */
 };
 
 struct _GstASFDemuxClass {
@@ -208,6 +214,8 @@ struct _GstASFDemuxClass {
 GType           gst_asf_demux_get_type (void);
 
 AsfStream     * gst_asf_demux_get_stream (GstASFDemux * demux, guint16 id);
+
+gboolean        gst_asf_demux_is_unknown_stream(GstASFDemux *demux, guint stream_num);
 
 G_END_DECLS
 

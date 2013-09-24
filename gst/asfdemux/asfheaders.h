@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifndef __ASFHEADERS_H__
@@ -74,8 +74,14 @@ typedef enum {
 typedef enum {
   ASF_STREAM_UNDEFINED = 0,
   ASF_STREAM_VIDEO,
-  ASF_STREAM_AUDIO
+  ASF_STREAM_AUDIO,
+  ASF_STREAM_EXT_EMBED_HEADER
 } AsfStreamType;
+
+typedef enum {
+  ASF_EXT_STREAM_UNDEFINED = 0,
+  ASF_EXT_STREAM_AUDIO
+} AsfExtStreamType;
 
 typedef enum {
   ASF_CORRECTION_UNDEFINED = 0,
@@ -87,7 +93,8 @@ typedef enum {
   ASF_PAYLOAD_EXTENSION_UNDEFINED = 0,
   ASF_PAYLOAD_EXTENSION_DURATION,
   ASF_PAYLOAD_EXTENSION_SYSTEM_CONTENT,
-  ASF_PAYLOAD_EXTENSION_SYSTEM_PIXEL_ASPECT_RATIO
+  ASF_PAYLOAD_EXTENSION_SYSTEM_PIXEL_ASPECT_RATIO,
+  ASF_PAYLOAD_EXTENSION_TIMING
 } AsfPayloadExtensionID;
 
 extern const ASFGuidHash asf_payload_ext_guids[];
@@ -95,6 +102,8 @@ extern const ASFGuidHash asf_payload_ext_guids[];
 extern const ASFGuidHash asf_correction_guids[];
 
 extern const ASFGuidHash asf_stream_guids[];
+
+extern const ASFGuidHash asf_ext_stream_guids[];
 
 extern const ASFGuidHash asf_object_guids[];
 

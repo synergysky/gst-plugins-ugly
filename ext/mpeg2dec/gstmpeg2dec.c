@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -85,7 +85,7 @@ static gboolean gst_mpeg2dec_start (GstVideoDecoder * decoder);
 static gboolean gst_mpeg2dec_stop (GstVideoDecoder * decoder);
 static gboolean gst_mpeg2dec_set_format (GstVideoDecoder * decoder,
     GstVideoCodecState * state);
-static gboolean gst_mpeg2dec_reset (GstVideoDecoder * decoder, gboolean hard);
+static gboolean gst_mpeg2dec_flush (GstVideoDecoder * decoder);
 static GstFlowReturn gst_mpeg2dec_finish (GstVideoDecoder * decoder);
 static GstFlowReturn gst_mpeg2dec_handle_frame (GstVideoDecoder * decoder,
     GstVideoCodecFrame * frame);
@@ -118,7 +118,7 @@ gst_mpeg2dec_class_init (GstMpeg2decClass * klass)
   video_decoder_class->close = GST_DEBUG_FUNCPTR (gst_mpeg2dec_close);
   video_decoder_class->start = GST_DEBUG_FUNCPTR (gst_mpeg2dec_start);
   video_decoder_class->stop = GST_DEBUG_FUNCPTR (gst_mpeg2dec_stop);
-  video_decoder_class->reset = GST_DEBUG_FUNCPTR (gst_mpeg2dec_reset);
+  video_decoder_class->flush = GST_DEBUG_FUNCPTR (gst_mpeg2dec_flush);
   video_decoder_class->set_format = GST_DEBUG_FUNCPTR (gst_mpeg2dec_set_format);
   video_decoder_class->handle_frame =
       GST_DEBUG_FUNCPTR (gst_mpeg2dec_handle_frame);
@@ -185,24 +185,6 @@ gst_mpeg2dec_close (GstVideoDecoder * decoder)
 }
 
 static gboolean
-gst_mpeg2dec_start (GstVideoDecoder * decoder)
-{
-  return gst_mpeg2dec_reset (decoder, TRUE);
-}
-
-static gboolean
-gst_mpeg2dec_stop (GstVideoDecoder * decoder)
-{
-  GstMpeg2dec *mpeg2dec = GST_MPEG2DEC (decoder);
-
-  if (mpeg2dec->input_state) {
-    gst_video_codec_state_unref (mpeg2dec->input_state);
-    mpeg2dec->input_state = NULL;
-  }
-  return gst_mpeg2dec_reset (decoder, TRUE);
-}
-
-static gboolean
 gst_mpeg2dec_set_format (GstVideoDecoder * decoder, GstVideoCodecState * state)
 {
   GstMpeg2dec *mpeg2dec = GST_MPEG2DEC (decoder);
@@ -216,15 +198,40 @@ gst_mpeg2dec_set_format (GstVideoDecoder * decoder, GstVideoCodecState * state)
 }
 
 static gboolean
-gst_mpeg2dec_reset (GstVideoDecoder * decoder, gboolean hard)
+gst_mpeg2dec_start (GstVideoDecoder * decoder)
 {
   GstMpeg2dec *mpeg2dec = GST_MPEG2DEC (decoder);
 
-  GST_DEBUG_OBJECT (mpeg2dec, "%s", hard ? "hard" : "soft");
+  mpeg2dec->discont_state = MPEG2DEC_DISC_NEW_PICTURE;
+
+  return TRUE;
+}
+
+static gboolean
+gst_mpeg2dec_stop (GstVideoDecoder * decoder)
+{
+  GstMpeg2dec *mpeg2dec = GST_MPEG2DEC (decoder);
+
+  mpeg2_reset (mpeg2dec->decoder, 0);
+  mpeg2_skip (mpeg2dec->decoder, 1);
+
+  gst_mpeg2dec_clear_buffers (mpeg2dec);
+
+  if (mpeg2dec->input_state)
+    gst_video_codec_state_unref (mpeg2dec->input_state);
+  mpeg2dec->input_state = NULL;
+
+  return TRUE;
+}
+
+static gboolean
+gst_mpeg2dec_flush (GstVideoDecoder * decoder)
+{
+  GstMpeg2dec *mpeg2dec = GST_MPEG2DEC (decoder);
 
   /* reset the initial video state */
   mpeg2dec->discont_state = MPEG2DEC_DISC_NEW_PICTURE;
-  mpeg2_reset (mpeg2dec->decoder, hard);
+  mpeg2_reset (mpeg2dec->decoder, 1);
   mpeg2_skip (mpeg2dec->decoder, 1);
 
   gst_mpeg2dec_clear_buffers (mpeg2dec);
@@ -998,7 +1005,7 @@ gst_mpeg2dec_handle_frame (GstVideoDecoder * decoder,
           GST_VIDEO_DECODER_ERROR (decoder, 1, STREAM, DECODE,
               ("decoding error"), ("Bad sequence header"), ret);
           gst_video_decoder_drop_frame (decoder, frame);
-          gst_mpeg2dec_reset (decoder, 0);
+          gst_mpeg2dec_flush (decoder);
           goto done;
         }
         break;

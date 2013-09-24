@@ -13,8 +13,8 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
  */
 
 /**
@@ -152,6 +152,9 @@ gst_real_audio_demux_reset (GstRealAudioDemux * demux)
   demux->upstream_size = 0;
 
   demux->offset = 0;
+
+  demux->have_group_id = FALSE;
+  demux->group_id = G_MAXUINT;
 
   gst_adapter_clear (demux->adapter);
 }
@@ -320,6 +323,7 @@ gst_real_audio_demux_parse_header (GstRealAudioDemux * demux)
   const guint8 *data;
   gchar *codec_name = NULL;
   GstCaps *caps = NULL;
+  GstEvent *event;
   gchar *stream_id;
   guint avail;
 
@@ -449,7 +453,24 @@ gst_real_audio_demux_parse_header (GstRealAudioDemux * demux)
 
   stream_id =
       gst_pad_create_stream_id (demux->srcpad, GST_ELEMENT_CAST (demux), NULL);
-  gst_pad_push_event (demux->srcpad, gst_event_new_stream_start (stream_id));
+
+  event = gst_pad_get_sticky_event (demux->sinkpad, GST_EVENT_STREAM_START, 0);
+  if (event) {
+    if (gst_event_parse_group_id (event, &demux->group_id))
+      demux->have_group_id = TRUE;
+    else
+      demux->have_group_id = FALSE;
+    gst_event_unref (event);
+  } else if (!demux->have_group_id) {
+    demux->have_group_id = TRUE;
+    demux->group_id = gst_util_group_id_next ();
+  }
+
+  event = gst_event_new_stream_start (stream_id);
+  if (demux->have_group_id)
+    gst_event_set_group_id (event, demux->group_id);
+
+  gst_pad_push_event (demux->srcpad, event);
   g_free (stream_id);
 
   gst_pad_set_caps (demux->srcpad, caps);
@@ -910,6 +931,25 @@ gst_real_audio_demux_src_query (GstPad * pad, GstObject * parent,
       seekable = (format == GST_FORMAT_TIME && demux->seekable);
       gst_query_set_seeking (query, format, seekable, 0,
           (format == GST_FORMAT_TIME) ? demux->duration : -1);
+      ret = TRUE;
+      break;
+    }
+    case GST_QUERY_SEGMENT:
+    {
+      GstFormat format;
+      gint64 start, stop;
+
+      format = demux->segment.format;
+
+      start =
+          gst_segment_to_stream_time (&demux->segment, format,
+          demux->segment.start);
+      if ((stop = demux->segment.stop) == -1)
+        stop = demux->segment.duration;
+      else
+        stop = gst_segment_to_stream_time (&demux->segment, format, stop);
+
+      gst_query_set_segment (query, demux->segment.rate, format, start, stop);
       ret = TRUE;
       break;
     }
