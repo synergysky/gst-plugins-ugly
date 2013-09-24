@@ -1,18 +1,16 @@
-AC_PREREQ(2.62)
+AC_PREREQ([2.68])
 
 dnl please read gstreamer/docs/random/autotools before changing this file
 
 dnl initialize autoconf
 dnl releases only do -Wall, cvs and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for cvs/prerelease
-AC_INIT(GStreamer Ugly Plug-ins, 1.0.10,
-    http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer,
-    gst-plugins-ugly)
+AC_INIT([GStreamer Ugly Plug-ins],[1.1.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-ugly])
 
 AG_GST_INIT
 
 dnl initialize automake
-AM_INIT_AUTOMAKE([-Wno-portability 1.11 no-dist-gzip dist-xz tar-ustar])
+AM_INIT_AUTOMAKE([-Wno-portability 1.11 no-dist-gzip dist-xz tar-ustar subdir-objects])
 
 dnl define PACKAGE_VERSION_* variables
 AS_VERSION
@@ -44,11 +42,11 @@ AC_SUBST(GST_API_VERSION)
 AC_DEFINE_UNQUOTED(GST_API_VERSION, "$GST_API_VERSION",
   [GStreamer API Version])
 
-AS_LIBTOOL(GST, 9, 0, 9)
+AS_LIBTOOL(GST, 190, 0, 190)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.0.0
-GSTPB_REQ=1.0.0
+GST_REQ=1.1.90
+GSTPB_REQ=1.1.90
 
 dnl *** autotools stuff ****
 
@@ -118,8 +116,7 @@ AG_GST_CHECK_DOWHILE_MACROS
 
 dnl check for documentation tools
 GTK_DOC_CHECK([1.12])
-AS_PATH_PYTHON([2.1])
-AG_GST_PLUGIN_DOCS([1.3],[2.1])
+AG_GST_PLUGIN_DOCS([1.12])
 
 dnl *** checks for libraries ***
 
@@ -169,6 +166,9 @@ GSTPB_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-plugins-base-$GST_API_VER
 AC_SUBST(GLIB_PREFIX)
 AC_SUBST(GST_PREFIX)
 AC_SUBST(GSTPB_PREFIX)
+
+dnl Needed by plugins that use g_module_*() API
+PKG_CHECK_MODULES(GMODULE_NO_EXPORT, gmodule-no-export-2.0)
 
 dnl *** set variables based on configure arguments ***
 
@@ -315,16 +315,12 @@ AG_GST_CHECK_FEATURE(LAME, [lame mp3 encoder library], lame, [
     LAME_LIBS="-lmp3lame $LIBM"
     dnl is lame presets available
     LAME_CFLAGS=""
-    AC_TRY_COMPILE([#include <lame/lame.h>], [ int preset = MEDIUM ],
-      [LAME_CFLAGS="-DGSTLAME_PRESET"],
-      [LAME_CFLAGS=""]
-    )
-    AC_TRY_COMPILE([#include <lame/lame.h>], [
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <lame/lame.h>]], [[ int preset = MEDIUM ]])],[LAME_CFLAGS="-DGSTLAME_PRESET"],[LAME_CFLAGS=""
+    ])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <lame/lame.h>]], [[
         void *ptr = &lame_set_VBR_quality
-      ],
-      [LAME_CFLAGS="$LAME_CFLAGS -DHAVE_LAME_SET_VBR_QUALITY"],
-      [LAME_CFLAGS="$LAME_CFLAGS"]
-    )
+      ]])],[LAME_CFLAGS="$LAME_CFLAGS -DHAVE_LAME_SET_VBR_QUALITY"],[LAME_CFLAGS="$LAME_CFLAGS"
+    ])
   AC_SUBST(LAME_CFLAGS)
   AC_SUBST(LAME_LIBS)
   ])
