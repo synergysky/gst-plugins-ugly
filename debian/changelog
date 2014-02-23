@@ -1,3 +1,11 @@
+gst-plugins-ugly1.0 (1.2.3-2) unstable; urgency=medium
+
+  * debian/patches/01_a52dec-configure.patch:
+    + Fix configure check for a52dec after latest upload of a52dec.
+      Patch taken from multiple upstream commits (Closes: #739803).
+
+ -- Sebastian Dröge <slomo@debian.org>  Sun, 23 Feb 2014 11:09:07 +0100
+
 gst-plugins-ugly1.0 (1.2.3-1) unstable; urgency=medium
 
   [ Iain Lane ]
