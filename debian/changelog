@@ -1,3 +1,11 @@
+gst-plugins-ugly1.0 (1.2.4-1) unstable; urgency=medium
+
+  * New upstream bugfix release:
+    + debian/patches/01_a52dec-configure.patch:
+      - Dropped, merged upstream.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sat, 19 Apr 2014 15:48:49 +0200
+
 gst-plugins-ugly1.0 (1.2.3-2) unstable; urgency=medium
 
   * debian/patches/01_a52dec-configure.patch:
