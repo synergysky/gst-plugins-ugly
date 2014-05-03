@@ -518,7 +518,7 @@ GstX264Enc implements
 <pre class="programlisting">  “qp-max”                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
 <p>Maximum quantizer.</p>
 <p>Flags: Read / Write</p>
-<p>Allowed values: [1,51]</p>
+<p>Allowed values: &lt;= 51</p>
 <p>Default value: 51</p>
 </div>
 <hr>
@@ -527,7 +527,7 @@ GstX264Enc implements
 <pre class="programlisting">  “qp-min”                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
 <p>Minimum quantizer.</p>
 <p>Flags: Read / Write</p>
-<p>Allowed values: [1,51]</p>
+<p>Allowed values: &lt;= 51</p>
 <p>Default value: 10</p>
 </div>
 <hr>
@@ -536,7 +536,7 @@ GstX264Enc implements
 <pre class="programlisting">  “qp-step”                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
 <p>Maximum quantizer difference between frames.</p>
 <p>Flags: Read / Write</p>
-<p>Allowed values: [1,50]</p>
+<p>Allowed values: &lt;= 50</p>
 <p>Default value: 4</p>
 </div>
 <hr>
@@ -545,7 +545,7 @@ GstX264Enc implements
 <pre class="programlisting">  “quantizer”                <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
 <p>Constant quantizer or quality to apply.</p>
 <p>Flags: Read / Write</p>
-<p>Allowed values: [1,50]</p>
+<p>Allowed values: &lt;= 50</p>
 <p>Default value: 21</p>
 </div>
 <hr>

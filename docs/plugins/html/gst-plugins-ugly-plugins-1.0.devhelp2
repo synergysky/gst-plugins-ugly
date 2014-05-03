@@ -75,14 +75,14 @@
     <keyword type="property" name="The “half” property" link="gst-plugins-ugly-plugins-mad.html#GstMad--half"/>
     <keyword type="property" name="The “ignore-crc” property" link="gst-plugins-ugly-plugins-mad.html#GstMad--ignore-crc"/>
     <keyword type="" name="Example launch line" link="gst-plugins-ugly-plugins-rademux.html#id-1.2.9.6.3"/>
-    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rademux.html#id-1.2.9.6.4.1.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rademux.html#id-1.2.9.6.4.1.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rademux.html#id-1.2.9.6.4.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rademux.html#id-1.2.9.6.4.2"/>
     <keyword type="struct" name="struct GstRealAudioDemux" link="gst-plugins-ugly-plugins-rademux.html#GstRealAudioDemux-struct"/>
     <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rmdemux.html#id-1.2.10.6.2.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rmdemux.html#id-1.2.10.6.2.2"/>
     <keyword type="struct" name="struct GstRMDemux" link="gst-plugins-ugly-plugins-rmdemux.html#GstRMDemux-struct"/>
-    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rdtmanager.html#id-1.2.11.8.3.1.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rdtmanager.html#id-1.2.11.8.3.1.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rdtmanager.html#id-1.2.11.8.2.1.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rdtmanager.html#id-1.2.11.8.2.1.2"/>
     <keyword type="struct" name="struct GstRDTManager" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-struct"/>
     <keyword type="property" name="The “latency” property" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager--latency"/>
     <keyword type="signal" name="The “clear-pt-map” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-clear-pt-map"/>
@@ -91,11 +91,11 @@
     <keyword type="signal" name="The “on-timeout” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-on-timeout"/>
     <keyword type="signal" name="The “request-pt-map” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-request-pt-map"/>
     <keyword type="signal" name="The “on-npt-stop” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-on-npt-stop"/>
-    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rtspreal.html#id-1.2.12.7.3.1.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rtspreal.html#id-1.2.12.7.3.1.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rtspreal.html#id-1.2.12.7.2.1.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rtspreal.html#id-1.2.12.7.2.1.2"/>
     <keyword type="struct" name="struct GstRTSPReal" link="gst-plugins-ugly-plugins-rtspreal.html#GstRTSPReal-struct"/>
-    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rtspwms.html#id-1.2.13.7.3.1.1"/>
-    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rtspwms.html#id-1.2.13.7.3.1.2"/>
+    <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-rtspwms.html#id-1.2.13.7.2.1.1"/>
+    <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-rtspwms.html#id-1.2.13.7.2.1.2"/>
     <keyword type="struct" name="struct GstRTSPWMS" link="gst-plugins-ugly-plugins-rtspwms.html#GstRTSPWMS-struct"/>
     <keyword type="" name="Element Information" link="gst-plugins-ugly-plugins-siddec.html#id-1.2.14.7.2.1"/>
     <keyword type="" name="Element Pads" link="gst-plugins-ugly-plugins-siddec.html#id-1.2.14.7.2.2"/>

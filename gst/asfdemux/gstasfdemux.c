@@ -155,16 +155,16 @@ gst_asf_demux_free_stream (GstASFDemux * demux, AsfStream * stream)
     stream->pad = NULL;
   }
 
-  while (stream->payloads->len > 0) {
-    AsfPayload *payload;
-    guint last;
-
-    last = stream->payloads->len - 1;
-    payload = &g_array_index (stream->payloads, AsfPayload, last);
-    gst_buffer_replace (&payload->buf, NULL);
-    g_array_remove_index (stream->payloads, last);
-  }
   if (stream->payloads) {
+    while (stream->payloads->len > 0) {
+      AsfPayload *payload;
+      guint last;
+
+      last = stream->payloads->len - 1;
+      payload = &g_array_index (stream->payloads, AsfPayload, last);
+      gst_buffer_replace (&payload->buf, NULL);
+      g_array_remove_index (stream->payloads, last);
+    }
     g_array_free (stream->payloads, TRUE);
     stream->payloads = NULL;
   }
@@ -2197,32 +2197,6 @@ gst_asf_demux_get_uint64 (guint8 ** p_data, guint64 * p_size)
   return ret;
 }
 
-static inline guint32
-gst_asf_demux_get_var_length (guint8 type, guint8 ** p_data, guint64 * p_size)
-{
-  switch (type) {
-    case 0:
-      return 0;
-
-    case 1:
-      g_assert (*p_size >= 1);
-      return gst_asf_demux_get_uint8 (p_data, p_size);
-
-    case 2:
-      g_assert (*p_size >= 2);
-      return gst_asf_demux_get_uint16 (p_data, p_size);
-
-    case 3:
-      g_assert (*p_size >= 4);
-      return gst_asf_demux_get_uint32 (p_data, p_size);
-
-    default:
-      g_assert_not_reached ();
-      break;
-  }
-  return 0;
-}
-
 static gboolean
 gst_asf_demux_get_buffer (GstBuffer ** p_buf, guint num_bytes_to_read,
     guint8 ** p_data, guint64 * p_size)
@@ -2487,6 +2461,7 @@ gst_asf_demux_add_video_stream (GstASFDemux * demux,
     guint8 ** p_data, guint64 * p_size)
 {
   GstTagList *tags = NULL;
+  GstStructure *caps_s;
   GstBuffer *extradata = NULL;
   GstPad *src_pad;
   GstCaps *caps;
@@ -2544,10 +2519,14 @@ gst_asf_demux_add_video_stream (GstASFDemux * demux,
     gst_structure_remove_field (s, "framerate");
   }
 
-  /* add fourcc format to caps, some proprietary decoders seem to need it */
-  str = g_strdup_printf ("%" GST_FOURCC_FORMAT, GST_FOURCC_ARGS (video->tag));
-  gst_caps_set_simple (caps, "format", G_TYPE_STRING, str, NULL);
-  g_free (str);
+  caps_s = gst_caps_get_structure (caps, 0);
+
+  /* add format field with fourcc to WMV/VC1 caps to differentiate variants */
+  if (gst_structure_has_name (caps_s, "video/x-wmv")) {
+    str = g_strdup_printf ("%" GST_FOURCC_FORMAT, GST_FOURCC_ARGS (video->tag));
+    gst_caps_set_simple (caps, "format", G_TYPE_STRING, str, NULL);
+    g_free (str);
+  }
 
   if (codec_name) {
     tags = gst_tag_list_new (GST_TAG_VIDEO_CODEC, codec_name, NULL);
