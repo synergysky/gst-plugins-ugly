@@ -43,7 +43,7 @@
 <col width="200px" class="properties_flags">
 </colgroup>
 <tbody><tr>
-<td class="property_type"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></td>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></td>
 <td class="property_name"><a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager--latency" title="The “latency” property">latency</a></td>
 <td class="property_flags">Read / Write</td>
 </tr></tbody>
@@ -107,8 +107,8 @@
 </div>
 <div class="refsect1">
 <a name="gst-plugins-ugly-plugins-rdtmanager.object-hierarchy"></a><h2>Object Hierarchy</h2>
-<pre class="screen">    <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
-    <span class="lineart">╰──</span> <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
         <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
             <span class="lineart">╰──</span> <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
                 <span class="lineart">╰──</span> GstRDTManager
@@ -264,7 +264,7 @@
 <a name="gst-plugins-ugly-plugins-rdtmanager.property-details"></a><h2>Property Details</h2>
 <div class="refsect2">
 <a name="GstRDTManager--latency"></a><h3>The <code class="literal">“latency”</code> property</h3>
-<pre class="programlisting">  “latency”                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
+<pre class="programlisting">  “latency”                  <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a></pre>
 <p>Amount of ms to buffer.</p>
 <p>Flags: Read / Write</p>
 <p>Default value: 200</p>
@@ -276,7 +276,7 @@
 <a name="GstRDTManager-clear-pt-map"></a><h3>The <code class="literal">“clear-pt-map”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager"><span class="type">GstRDTManager</span></a> *rtpbin,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
 <p>Clear all previously cached pt-mapping obtained with
 GstRDTManager::request-pt-map.</p>
 <div class="refsect3">
@@ -308,9 +308,9 @@ GstRDTManager::request-pt-map.</p>
 <a name="GstRDTManager-on-bye-ssrc"></a><h3>The <code class="literal">“on-bye-ssrc”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager"><span class="type">GstRDTManager</span></a> *rtpbin,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
 <p>Notify of an SSRC that became inactive because of a BYE packet.</p>
 <div class="refsect3">
 <a name="id-1.2.11.12.3.5"></a><h4>Parameters</h4>
@@ -351,9 +351,9 @@ user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#Gs
 <a name="GstRDTManager-on-bye-timeout"></a><h3>The <code class="literal">“on-bye-timeout”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager"><span class="type">GstRDTManager</span></a> *rtpbin,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
 <p>Notify of an SSRC that has timed out because of BYE</p>
 <div class="refsect3">
 <a name="id-1.2.11.12.4.5"></a><h4>Parameters</h4>
@@ -394,9 +394,9 @@ user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#Gs
 <a name="GstRDTManager-on-timeout"></a><h3>The <code class="literal">“on-timeout”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager"><span class="type">GstRDTManager</span></a> *rtpbin,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
 <p>Notify of an SSRC that has timed out</p>
 <div class="refsect3">
 <a name="id-1.2.11.12.5.5"></a><h4>Parameters</h4>
@@ -437,9 +437,9 @@ user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#Gs
 <a name="GstRDTManager-request-pt-map"></a><h3>The <code class="literal">“request-pt-map”</code> signal</h3>
 <pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="returnvalue">GstCaps</span></a>*
 user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager"><span class="type">GstRDTManager</span></a> *rdtmanager,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          pt,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          pt,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
 <p>Request the payload type as <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstCaps.html"><span class="type">GstCaps</span></a> for <em class="parameter"><code>pt</code></em>
  in <em class="parameter"><code>session</code></em>
 .</p>
@@ -482,9 +482,9 @@ user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#Gs
 <a name="GstRDTManager-on-npt-stop"></a><h3>The <code class="literal">“on-npt-stop”</code> signal</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>
 user_function (<a class="link" href="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager"><span class="type">GstRDTManager</span></a> *rtpbin,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
-               <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          session,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>          ssrc,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>       user_data)</pre>
 <p>Notify that SSRC sender has sent data up to the configured NPT stop time.</p>
 <div class="refsect3">
 <a name="id-1.2.11.12.7.5"></a><h4>Parameters</h4>
