@@ -1470,7 +1470,7 @@ gst_x264_enc_init_encoder (GstX264Enc * encoder)
 
   encoder->reconfig = FALSE;
   /* good start, will be corrected if needed */
-  encoder->dts_offset = 0;
+  encoder->ts_offset = 0;
 
   GST_OBJECT_UNLOCK (encoder);
 
@@ -1728,25 +1728,27 @@ static void
 gst_x264_enc_set_latency (GstX264Enc * encoder)
 {
   GstVideoInfo *info = &encoder->input_state->info;
+  gint max_delayed_frames;
+  GstClockTime latency;
+
+  max_delayed_frames = x264_encoder_maximum_delayed_frames (encoder->x264enc);
 
   if (info->fps_n) {
-    GstClockTime latency;
-    gint max_delayed_frames;
-    max_delayed_frames = x264_encoder_maximum_delayed_frames (encoder->x264enc);
     latency = gst_util_uint64_scale_ceil (GST_SECOND * info->fps_d,
         max_delayed_frames, info->fps_n);
-
-    GST_INFO_OBJECT (encoder,
-        "Updating latency to %" GST_TIME_FORMAT " (%d frames)",
-        GST_TIME_ARGS (latency), max_delayed_frames);
-
-    gst_video_encoder_set_latency (GST_VIDEO_ENCODER (encoder), latency,
-        latency);
   } else {
-    /* We can't do live as we don't know our latency */
-    gst_video_encoder_set_latency (GST_VIDEO_ENCODER (encoder),
-        0, GST_CLOCK_TIME_NONE);
+    /* FIXME: Assume 25fps. This is better than reporting no latency at
+     * all and then later failing in live pipelines
+     */
+    latency = gst_util_uint64_scale_ceil (GST_SECOND * 1,
+        max_delayed_frames, 25);
   }
+
+  GST_INFO_OBJECT (encoder,
+      "Updating latency to %" GST_TIME_FORMAT " (%d frames)",
+      GST_TIME_ARGS (latency), max_delayed_frames);
+
+  gst_video_encoder_set_latency (GST_VIDEO_ENCODER (encoder), latency, latency);
 }
 
 static gboolean
@@ -1796,6 +1798,7 @@ gst_x264_enc_set_format (GstVideoEncoder * video_enc,
     GST_INFO_OBJECT (encoder,
         "downstream has ANY caps, outputting byte-stream");
     encoder->current_byte_stream = GST_X264_ENC_STREAM_FORMAT_BYTE_STREAM;
+    g_string_append_printf (encoder->option_string, ":annexb=1");
   } else if (allowed_caps) {
     GstStructure *s;
     const gchar *profile;
@@ -1920,7 +1923,19 @@ gst_x264_enc_finish (GstVideoEncoder * encoder)
 static gboolean
 gst_x264_enc_propose_allocation (GstVideoEncoder * encoder, GstQuery * query)
 {
+  GstX264Enc *self = GST_X264_ENC (encoder);
+  GstVideoInfo *info;
+  guint num_buffers;
+
   gst_query_add_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL);
+
+  if (!self->input_state)
+    return FALSE;
+
+  info = &self->input_state->info;
+  num_buffers = x264_encoder_maximum_delayed_frames (self->x264enc) + 1;
+
+  gst_query_add_allocation_pool (query, NULL, info->size, num_buffers, 0);
 
   return GST_VIDEO_ENCODER_CLASS (parent_class)->propose_allocation (encoder,
       query);
@@ -1958,13 +1973,12 @@ gst_x264_enc_handle_frame (GstVideoEncoder * video_enc,
       gst_x264_enc_gst_to_x264_video_format (info->finfo->format, &nplanes);
   pic_in.img.i_plane = nplanes;
   for (i = 0; i < nplanes; i++) {
-    pic_in.img.plane[i] = GST_VIDEO_FRAME_PLANE_DATA (&fdata->vframe, i);
+    pic_in.img.plane[i] = GST_VIDEO_FRAME_COMP_DATA (&fdata->vframe, i);
     pic_in.img.i_stride[i] = GST_VIDEO_FRAME_COMP_STRIDE (&fdata->vframe, i);
   }
 
   pic_in.i_type = X264_TYPE_AUTO;
   pic_in.i_pts = frame->pts;
-  pic_in.i_dts = frame->dts;
   pic_in.opaque = GINT_TO_POINTER (frame->system_frame_number);
 
   ret = gst_x264_enc_encode_frame (encoder, &pic_in, frame, &i_nal, TRUE);
@@ -2070,23 +2084,16 @@ gst_x264_enc_encode_frame (GstX264Enc * encoder, x264_picture_t * pic_in,
 
   /* we want to know if x264 is messing around with this */
   g_assert (frame->pts == pic_out.i_pts);
-  if (pic_out.b_keyframe) {
-    /* expect dts == pts, and also positive ts,
-     * so arrange for an offset if needed */
-    if (pic_out.i_dts + encoder->dts_offset != pic_out.i_pts) {
-      encoder->dts_offset = pic_out.i_pts - pic_out.i_dts;
-      GST_DEBUG_OBJECT (encoder, "determined dts offset %" G_GINT64_FORMAT,
-          encoder->dts_offset);
-    }
-  }
 
-  if (pic_out.i_dts + (gint64) encoder->dts_offset < 0) {
-    /* should be ok now, surprise if not */
-    GST_WARNING_OBJECT (encoder, "negative dts after offset compensation");
-    frame->dts = GST_CLOCK_TIME_NONE;
-  } else
-    frame->dts = pic_out.i_dts + encoder->dts_offset;
+  /* As upstream often starts with PTS set to zero, in presence of b-frames,
+   * x264 will have to use negative DTS. As this is not supported by
+   * GStreamer, we shift both DTS and PTS forward to make it positive. It's
+   * important to shift both in order to ensure PTS remains >= to DTS. */
+  if (pic_out.i_dts < encoder->ts_offset)
+    encoder->ts_offset = pic_out.i_dts;
 
+  frame->dts = pic_out.i_dts - encoder->ts_offset;
+  frame->pts = pic_out.i_pts - encoder->ts_offset;
 
   if (pic_out.b_keyframe) {
     GST_DEBUG_OBJECT (encoder, "Output keyframe");

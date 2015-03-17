@@ -81,8 +81,14 @@
    the CoreFoundation framework. */
 #undef HAVE_CFPREFERENCESCOPYAPPVALUE
 
+/* Define if the target CPU is AARCH64 */
+#undef HAVE_CPU_AARCH64
+
 /* Define if the target CPU is an Alpha */
 #undef HAVE_CPU_ALPHA
+
+/* Define if the target CPU is an ARC */
+#undef HAVE_CPU_ARC
 
 /* Define if the target CPU is an ARM */
 #undef HAVE_CPU_ARM

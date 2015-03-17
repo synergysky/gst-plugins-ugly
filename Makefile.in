@@ -1120,11 +1120,15 @@ download-po: $(top_srcdir)/common/download-translations
 	$(top_srcdir)/common/download-translations $(PACKAGE)
 
 check-valgrind:
-	cd tests/check && make check-valgrind
+	$(MAKE) -C tests/check check-valgrind
 
 @HAVE_GST_CHECK_TRUE@check-torture:
-@HAVE_GST_CHECK_TRUE@	cd tests/check && make torture
+@HAVE_GST_CHECK_TRUE@	$(MAKE) -C tests/check torture
+@HAVE_GST_CHECK_TRUE@build-checks:
+@HAVE_GST_CHECK_TRUE@	$(MAKE) -C tests/check build-checks
 @HAVE_GST_CHECK_FALSE@check-torture:
+@HAVE_GST_CHECK_FALSE@	true
+@HAVE_GST_CHECK_FALSE@build-checks:
 @HAVE_GST_CHECK_FALSE@	true
 
 win32-update:
