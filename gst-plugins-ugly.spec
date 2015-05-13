@@ -5,7 +5,7 @@
 
 Name: 		%{gstreamer}-plugins-ugly
 Version: 	1.5.0.1
-Release: 	0.20150316.185732.gst
+Release: 	0.20150513.125824.gst
 Summary: 	GStreamer streaming media framework "ugly" plug-ins
 
 Group: 		Applications/Multimedia

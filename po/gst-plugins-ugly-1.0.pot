@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gst-plugins-ugly 1.5.0.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-03-17 09:21+0100\n"
+"POT-Creation-Date: 2015-05-13 13:04+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,35 +28,35 @@ msgstr ""
 msgid "Disc is not an Audio CD."
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:228 ext/dvdread/dvdreadsrc.c:235
+#: ext/dvdread/dvdreadsrc.c:231 ext/dvdread/dvdreadsrc.c:238
 msgid "Could not open DVD"
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:242 ext/dvdread/dvdreadsrc.c:618
-#: ext/dvdread/dvdreadsrc.c:625
+#: ext/dvdread/dvdreadsrc.c:245 ext/dvdread/dvdreadsrc.c:621
+#: ext/dvdread/dvdreadsrc.c:628
 #, c-format
 msgid "Could not open DVD title %d"
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:248
+#: ext/dvdread/dvdreadsrc.c:251
 #, c-format
 msgid "Failed to go to chapter %d of DVD title %d"
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:632
+#: ext/dvdread/dvdreadsrc.c:635
 #, c-format
 msgid ""
 "Could not open DVD title %d. Interactive titles are not supported by this "
 "element"
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:986
+#: ext/dvdread/dvdreadsrc.c:989
 msgid ""
 "Could not read DVD. This may be because the DVD is encrypted and a DVD "
 "decryption library is not installed."
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:989
+#: ext/dvdread/dvdreadsrc.c:992
 msgid "Could not read DVD."
 msgstr ""
 
@@ -80,6 +80,6 @@ msgstr ""
 msgid "This stream contains no data."
 msgstr ""
 
-#: gst/asfdemux/gstasfdemux.c:424 gst/asfdemux/gstasfdemux.c:1971
+#: gst/asfdemux/gstasfdemux.c:424 gst/asfdemux/gstasfdemux.c:1972
 msgid "Internal data stream error."
 msgstr ""
