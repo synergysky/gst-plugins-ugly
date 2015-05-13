@@ -337,7 +337,7 @@ gst_mpeg2dec_decide_allocation (GstVideoDecoder * decoder, GstQuery * query)
     if (!has_videometa) {
       dec->downstream_pool = pool;
       pool = NULL;
-      down_config = gst_structure_copy (config);
+      down_config = config;
       config = NULL;
       min = 2;
       max = 0;
@@ -491,7 +491,7 @@ gst_mpeg2dec_crop_buffer (GstMpeg2dec * dec, GstVideoCodecFrame * in_frame,
   GstVideoInfo *dinfo;
   GstVideoFrame output_frame;
   GstFlowReturn ret;
-  GstBuffer *buffer;
+  GstBuffer *buffer = NULL;
 
   state = gst_video_decoder_get_output_state (GST_VIDEO_DECODER (dec));
   info = &state->info;
@@ -509,7 +509,9 @@ gst_mpeg2dec_crop_buffer (GstMpeg2dec * dec, GstVideoCodecFrame * in_frame,
   if (!gst_video_frame_map (&output_frame, info, buffer, GST_MAP_WRITE))
     goto map_fail;
 
-  gst_buffer_replace (&in_frame->output_buffer, buffer);
+  if (in_frame->output_buffer)
+    gst_buffer_unref (in_frame->output_buffer);
+  in_frame->output_buffer = buffer;
 
   if (!gst_video_frame_copy (&output_frame, input_vframe))
     goto copy_failed;
