@@ -1,3 +1,9 @@
+gst-plugins-ugly1.0 (1.4.5-3) UNRELEASED; urgency=medium
+
+  * debian/watch: Update to match current URL scheme
+
+ -- Iain Lane <laney@debian.org>  Mon, 15 Jun 2015 09:36:32 +0100
+
 gst-plugins-ugly1.0 (1.4.5-2) unstable; urgency=medium
 
   * Upload to unstable.
