@@ -30,7 +30,7 @@
 <div class="refnamediv"><table width="100%"><tr>
 <td valign="top">
 <h2><span class="refentrytitle"><a name="gst-plugins-ugly-plugins-x264enc.top_of_page"></a>x264enc</span></h2>
-<p>x264enc — H264 Encoder</p>
+<p>x264enc</p>
 </td>
 <td class="gallery_image" valign="top" align="right"></td>
 </tr></table></div>
@@ -241,6 +241,11 @@
 <td class="property_name"><a class="link" href="gst-plugins-ugly-plugins-x264enc.html#GstX264Enc--tune" title="The “tune” property">tune</a></td>
 <td class="property_flags">Read / Write</td>
 </tr>
+<tr>
+<td class="property_type"><span class="type">GstX264EncFramePacking</span></td>
+<td class="property_name"><a class="link" href="gst-plugins-ugly-plugins-x264enc.html#GstX264Enc--frame-packing" title="The “frame-packing” property">frame-packing</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -355,8 +360,6 @@ GstX264Enc implements
 </table></div>
 </div>
 </div>
-<p>
-</p>
 </div>
 <div class="refsect1">
 <a name="gst-plugins-ugly-plugins-x264enc.functions_details"></a><h2>Functions</h2>
@@ -367,8 +370,6 @@ GstX264Enc implements
 <div class="refsect2">
 <a name="GstX264Enc-struct"></a><h3>struct GstX264Enc</h3>
 <pre class="programlisting">struct GstX264Enc;</pre>
-<p>
-</p>
 </div>
 </div>
 <div class="refsect1">
@@ -698,6 +699,14 @@ GstX264Enc implements
 <pre class="programlisting">  “tune”                     <span class="type">GstX264EncTune</span></pre>
 <p>Preset name for non-psychovisual tuning options.</p>
 <p>Flags: Read / Write</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstX264Enc--frame-packing"></a><h3>The <code class="literal">“frame-packing”</code> property</h3>
+<pre class="programlisting">  “frame-packing”            <span class="type">GstX264EncFramePacking</span></pre>
+<p>Set frame packing mode for Stereoscopic content.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: Automatic (use incoming video information)</p>
 </div>
 </div>
 </div>
