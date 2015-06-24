@@ -137,6 +137,7 @@
     <keyword type="property" name="The “psy-tune” property" link="gst-plugins-ugly-plugins-x264enc.html#GstX264Enc--psy-tune"/>
     <keyword type="property" name="The “speed-preset” property" link="gst-plugins-ugly-plugins-x264enc.html#GstX264Enc--speed-preset"/>
     <keyword type="property" name="The “tune” property" link="gst-plugins-ugly-plugins-x264enc.html#GstX264Enc--tune"/>
+    <keyword type="property" name="The “frame-packing” property" link="gst-plugins-ugly-plugins-x264enc.html#GstX264Enc--frame-packing"/>
     <keyword type="struct" name="struct GstXingMux" link="gst-plugins-ugly-plugins-xingmux.html#GstXingMux-struct"/>
   </functions>
 </book>
