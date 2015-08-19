@@ -1,3 +1,9 @@
+gst-plugins-ugly1.0 (1.5.90-1) experimental; urgency=medium
+
+  * New upstream release candidate.
+
+ -- Iain Lane <laney@debian.org>  Wed, 19 Aug 2015 14:01:48 +0300
+
 gst-plugins-ugly1.0 (1.5.2-1) experimental; urgency=medium
 
   [ Iain Lane ]
