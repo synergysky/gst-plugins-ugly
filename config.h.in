@@ -40,6 +40,9 @@
 /* GStreamer API Version */
 #undef GST_API_VERSION
 
+/* Define if extra runtime checks should be enabled */
+#undef GST_ENABLE_EXTRA_CHECKS
+
 /* macro to use to show function name */
 #undef GST_FUNCTION
 
