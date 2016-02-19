@@ -4,7 +4,7 @@
 %define gst_minver  0.11.0
 
 Name: 		%{gstreamer}-plugins-ugly
-Version: 	1.7.1
+Version: 	1.7.2
 Release: 	1.gst
 Summary: 	GStreamer streaming media framework "ugly" plug-ins
 
@@ -25,6 +25,7 @@ BuildRequires:  libdvdread-devel >= 0.9.0
 BuildRequires:  lame-devel >= 3.89
 BuildRequires:  libmad-devel >= 0.15.0
 BuildRequires:  mpeg2dec-devel >= 0.4.0
+BuildRequires:  mpg123-devel >= 1.13
 
 Provides:       gstreamer-sid = %{version}-%{release}
 Provides:      gstreamer-lame = %{version}-%{release}
@@ -105,6 +106,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/gstreamer-%{majorminor}/libgsta52dec.so
 %{_libdir}/gstreamer-%{majorminor}/libgstdvdread.so
 %{_libdir}/gstreamer-%{majorminor}/libgstmpeg2dec.so
+%{_libdir}/gstreamer-%{majorminor}/libgstmpg123.so
 %{_libdir}/gstreamer-%{majorminor}/libgsttwolame.so
 %doc %{_datadir}/gtk-doc/html/gst-plugins-ugly-plugins-%{majorminor}/*
 %{_datadir}/gstreamer-%{majorminor}/presets/GstX264Enc.prs

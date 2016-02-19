@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-ugly 1.7.1\n"
+"Project-Id-Version: gst-plugins-ugly 1.7.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2015-12-24 14:03+0100\n"
+"POT-Creation-Date: 2016-02-19 10:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -76,10 +76,10 @@ msgstr ""
 msgid "Failed to configure TwoLAME encoder. Check your encoding parameters."
 msgstr ""
 
-#: gst/asfdemux/gstasfdemux.c:425
+#: gst/asfdemux/gstasfdemux.c:440
 msgid "This stream contains no data."
 msgstr ""
 
-#: gst/asfdemux/gstasfdemux.c:432 gst/asfdemux/gstasfdemux.c:2018
+#: gst/asfdemux/gstasfdemux.c:447 gst/asfdemux/gstasfdemux.c:2119
 msgid "Internal data stream error."
 msgstr ""
