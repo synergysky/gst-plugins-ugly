@@ -84,6 +84,14 @@
 <ANCHOR id="gst-plugins-ugly-plugins-mad.property-details" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mad.html#gst-plugins-ugly-plugins-mad.property-details">
 <ANCHOR id="GstMad--half" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mad.html#GstMad--half">
 <ANCHOR id="GstMad--ignore-crc" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mad.html#GstMad--ignore-crc">
+<ANCHOR id="gst-plugins-ugly-plugins-mpg123audiodec" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html">
+<ANCHOR id="GstMpg123AudioDec" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html#GstMpg123AudioDec">
+<ANCHOR id="gst-plugins-ugly-plugins-mpg123audiodec.other" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html#gst-plugins-ugly-plugins-mpg123audiodec.other">
+<ANCHOR id="gst-plugins-ugly-plugins-mpg123audiodec.object-hierarchy" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html#gst-plugins-ugly-plugins-mpg123audiodec.object-hierarchy">
+<ANCHOR id="gst-plugins-ugly-plugins-mpg123audiodec.description" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html#gst-plugins-ugly-plugins-mpg123audiodec.description">
+<ANCHOR id="gst-plugins-ugly-plugins-mpg123audiodec.functions_details" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html#gst-plugins-ugly-plugins-mpg123audiodec.functions_details">
+<ANCHOR id="gst-plugins-ugly-plugins-mpg123audiodec.other_details" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html#gst-plugins-ugly-plugins-mpg123audiodec.other_details">
+<ANCHOR id="GstMpg123AudioDec-struct" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-mpg123audiodec.html#GstMpg123AudioDec-struct">
 <ANCHOR id="gst-plugins-ugly-plugins-rademux" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rademux.html">
 <ANCHOR id="GstRealAudioDemux" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rademux.html#GstRealAudioDemux">
 <ANCHOR id="gst-plugins-ugly-plugins-rademux.other" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-rademux.html#gst-plugins-ugly-plugins-rademux.other">
@@ -264,6 +272,8 @@
 <ANCHOR id="plugin-mad" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-mad.html#plugin-mad">
 <ANCHOR id="gst-plugins-ugly-plugins-plugin-mpeg2dec" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-mpeg2dec.html">
 <ANCHOR id="plugin-mpeg2dec" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-mpeg2dec.html#plugin-mpeg2dec">
+<ANCHOR id="gst-plugins-ugly-plugins-plugin-mpg123" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-mpg123.html">
+<ANCHOR id="plugin-mpg123" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-mpg123.html#plugin-mpg123">
 <ANCHOR id="gst-plugins-ugly-plugins-plugin-realmedia" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-realmedia.html">
 <ANCHOR id="plugin-realmedia" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-realmedia.html#plugin-realmedia">
 <ANCHOR id="gst-plugins-ugly-plugins-plugin-siddec" href="gst-plugins-ugly-plugins-1.0/gst-plugins-ugly-plugins-plugin-siddec.html">
