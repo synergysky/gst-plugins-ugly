@@ -1,3 +1,12 @@
+gst-plugins-ugly1.0 (1.7.90-1) experimental; urgency=medium
+
+  * New upstream release candidate:
+    + debian/build-deps.in,
+      debian/rules:
+      - Build-depend on GStreamer >= 1.7.90.
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 01 Mar 2016 17:33:20 +0200
+
 gst-plugins-ugly1.0 (1.7.2-1) experimental; urgency=medium
 
   * New upstream unstable release:
