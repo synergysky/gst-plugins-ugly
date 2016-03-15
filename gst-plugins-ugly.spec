@@ -4,7 +4,7 @@
 %define gst_minver  0.11.0
 
 Name: 		%{gstreamer}-plugins-ugly
-Version: 	1.7.90
+Version: 	1.7.91
 Release: 	1.gst
 Summary: 	GStreamer streaming media framework "ugly" plug-ins
 
