@@ -40,6 +40,9 @@
 /* GStreamer API Version */
 #undef GST_API_VERSION
 
+/* Define if extra runtime checks should be enabled */
+#undef GST_ENABLE_EXTRA_CHECKS
+
 /* macro to use to show function name */
 #undef GST_FUNCTION
 
@@ -181,11 +184,8 @@
 /* Define to enable mpeg2dec (used by mpeg2dec). */
 #undef HAVE_MPEG2DEC
 
-/* Defined for newer opencore-amrnb */
-#undef HAVE_OPENCORE_AMRNB_0_1_3_OR_LATER
-
-/* Defined for newer opencore-amrwb */
-#undef HAVE_OPENCORE_AMRWB_0_1_3_OR_LATER
+/* Define to enable mpg123 audio decoder (used by mpg123). */
+#undef HAVE_MPG123
 
 /* Use Orc */
 #undef HAVE_ORC
@@ -238,8 +238,7 @@
 /* gettext locale dir */
 #undef LOCALEDIR
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* Name of package */
