@@ -32,6 +32,8 @@ Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends}
+Replaces: gstreamer1.0-plugins-bad (<< 1.7.2)
+Breaks: gstreamer1.0-plugins-bad (<< 1.7.2)
 XB-GStreamer-Version: ${gstreamer:Version}
 XB-GStreamer-Elements: ${gstreamer:Elements}
 XB-GStreamer-URI-Sources: ${gstreamer:URISources}
@@ -57,6 +59,8 @@ Section: debug
 Priority: extra
 Depends: @GST_PKGNAME@-plugins-ugly (= ${binary:Version}),
          ${misc:Depends}
+Replaces: gstreamer1.0-plugins-bad-dbg (<< 1.7.2)
+Breaks: gstreamer1.0-plugins-bad-dbg (<< 1.7.2)
 Description: GStreamer plugins from the "ugly" set (debug symbols)
  GStreamer is a streaming media framework, based on graphs of filters
  which operate on media data.  Applications using this library can do

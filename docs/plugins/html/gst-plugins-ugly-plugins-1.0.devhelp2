@@ -9,6 +9,7 @@
       <sub name="cdiocddasrc" link="gst-plugins-ugly-plugins-cdiocddasrc.html"/>
       <sub name="lamemp3enc" link="gst-plugins-ugly-plugins-lamemp3enc.html"/>
       <sub name="mad" link="gst-plugins-ugly-plugins-mad.html"/>
+      <sub name="mpg123audiodec" link="gst-plugins-ugly-plugins-mpg123audiodec.html"/>
       <sub name="rademux" link="gst-plugins-ugly-plugins-rademux.html"/>
       <sub name="rmdemux" link="gst-plugins-ugly-plugins-rmdemux.html"/>
       <sub name="rdtmanager" link="gst-plugins-ugly-plugins-rdtmanager.html"/>
@@ -31,6 +32,7 @@
       <sub name="lame" link="gst-plugins-ugly-plugins-plugin-lame.html"/>
       <sub name="mad" link="gst-plugins-ugly-plugins-plugin-mad.html"/>
       <sub name="mpeg2dec" link="gst-plugins-ugly-plugins-plugin-mpeg2dec.html"/>
+      <sub name="mpg123" link="gst-plugins-ugly-plugins-plugin-mpg123.html"/>
       <sub name="realmedia" link="gst-plugins-ugly-plugins-plugin-realmedia.html"/>
       <sub name="siddec" link="gst-plugins-ugly-plugins-plugin-siddec.html"/>
       <sub name="twolame" link="gst-plugins-ugly-plugins-plugin-twolame.html"/>
@@ -59,6 +61,7 @@
     <keyword type="struct" name="struct GstMad" link="gst-plugins-ugly-plugins-mad.html#GstMad-struct"/>
     <keyword type="property" name="The “half” property" link="gst-plugins-ugly-plugins-mad.html#GstMad--half"/>
     <keyword type="property" name="The “ignore-crc” property" link="gst-plugins-ugly-plugins-mad.html#GstMad--ignore-crc"/>
+    <keyword type="struct" name="struct GstMpg123AudioDec" link="gst-plugins-ugly-plugins-mpg123audiodec.html#GstMpg123AudioDec-struct"/>
     <keyword type="struct" name="struct GstRealAudioDemux" link="gst-plugins-ugly-plugins-rademux.html#GstRealAudioDemux-struct"/>
     <keyword type="struct" name="struct GstRMDemux" link="gst-plugins-ugly-plugins-rmdemux.html#GstRMDemux-struct"/>
     <keyword type="struct" name="struct GstRDTManager" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-struct"/>

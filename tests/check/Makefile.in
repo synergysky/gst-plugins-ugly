@@ -92,7 +92,7 @@ host_triplet = @host@
 target_triplet = @target@
 check_PROGRAMS = generic/states$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
-	$(am__EXEEXT_5)
+	$(am__EXEEXT_5) $(am__EXEEXT_6)
 noinst_PROGRAMS =
 subdir = tests/check
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -138,8 +138,9 @@ CONFIG_CLEAN_VPATH_FILES =
 @USE_AMRNB_TRUE@am__EXEEXT_1 = elements/amrnbenc$(EXEEXT)
 @USE_LAME_TRUE@am__EXEEXT_2 = pipelines/lame$(EXEEXT)
 @USE_MPEG2DEC_TRUE@am__EXEEXT_3 = elements/mpeg2dec$(EXEEXT)
-@USE_X264_TRUE@am__EXEEXT_4 = elements/x264enc$(EXEEXT)
-@USE_PLUGIN_XINGMUX_TRUE@am__EXEEXT_5 = elements/xingmux$(EXEEXT)
+@USE_MPG123_TRUE@am__EXEEXT_4 = elements/mpg123audiodec$(EXEEXT)
+@USE_X264_TRUE@am__EXEEXT_5 = elements/x264enc$(EXEEXT)
+@USE_PLUGIN_XINGMUX_TRUE@am__EXEEXT_6 = elements/xingmux$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 elements_amrnbenc_SOURCES = elements/amrnbenc.c
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -161,6 +162,16 @@ elements_mpeg2dec_SOURCES = elements/mpeg2dec.c
 elements_mpeg2dec_OBJECTS = elements/mpeg2dec.$(OBJEXT)
 elements_mpeg2dec_LDADD = $(LDADD)
 elements_mpeg2dec_DEPENDENCIES = $(am__DEPENDENCIES_1)
+elements_mpg123audiodec_SOURCES = elements/mpg123audiodec.c
+elements_mpg123audiodec_OBJECTS =  \
+	elements/elements_mpg123audiodec-mpg123audiodec.$(OBJEXT)
+elements_mpg123audiodec_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
+elements_mpg123audiodec_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(elements_mpg123audiodec_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 elements_x264enc_SOURCES = elements/x264enc.c
 elements_x264enc_OBJECTS = elements/x264enc.$(OBJEXT)
 elements_x264enc_LDADD = $(LDADD)
@@ -211,11 +222,12 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = elements/amrnbenc.c elements/mpeg2dec.c elements/x264enc.c \
+SOURCES = elements/amrnbenc.c elements/mpeg2dec.c \
+	elements/mpg123audiodec.c elements/x264enc.c \
 	elements/xingmux.c generic/states.c pipelines/lame.c
 DIST_SOURCES = elements/amrnbenc.c elements/mpeg2dec.c \
-	elements/x264enc.c elements/xingmux.c generic/states.c \
-	pipelines/lame.c
+	elements/mpg123audiodec.c elements/x264enc.c \
+	elements/xingmux.c generic/states.c pipelines/lame.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -583,6 +595,7 @@ LOCALEDIR = @LOCALEDIR@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAD_CFLAGS = @MAD_CFLAGS@
 MAD_LIBS = @MAD_LIBS@
 MAINT = @MAINT@
@@ -591,6 +604,8 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 MPEG2DEC_CFLAGS = @MPEG2DEC_CFLAGS@
 MPEG2DEC_LIBS = @MPEG2DEC_LIBS@
+MPG123_CFLAGS = @MPG123_CFLAGS@
+MPG123_LIBS = @MPG123_LIBS@
 MSGFMT = @MSGFMT@
 MSGFMT_015 = @MSGFMT_015@
 MSGMERGE = @MSGMERGE@
@@ -711,19 +726,18 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AM_TESTS_ENVIRONMENT = CK_DEFAULT_TIMEOUT=20 $(REGISTRY_ENVIRONMENT) \
+	GST_PLUGIN_SYSTEM_PATH_1_0= \
+	GST_PLUGIN_PATH_1_0=$(top_builddir)/gst:$(top_builddir)/ext:$(top_builddir)/sys:$(GSTPB_PLUGINS_DIR):$(GST_PLUGINS_DIR) \
+	GST_PLUGIN_LOADING_WHITELIST="gstreamer@$(GST_PLUGINS_DIR):gst-plugins-base@$(GSTPB_PLUGINS_DIR):gst-plugins-ugly@$(top_builddir)" \
+	GST_STATE_IGNORE_ELEMENTS="siddec dvdreadsrc cdiocddasrc"
 
 # inspect every plugin feature
 GST_INSPECT = $(GST_TOOLS_DIR)/gst-inspect-$(GST_API_VERSION)
 CHECK_REGISTRY = $(top_builddir)/tests/check/test-registry.reg
+TEST_FILES_DIRECTORY = $(top_srcdir)/tests/files
 REGISTRY_ENVIRONMENT = \
 	GST_REGISTRY_1_0=$(CHECK_REGISTRY)
-
-AM_TESTS_ENVIRONMENT = \
-	$(REGISTRY_ENVIRONMENT)					\
-	GST_PLUGIN_SYSTEM_PATH_1_0=				\
-	GST_PLUGIN_PATH_1_0=$(top_builddir)/gst:$(top_builddir)/ext:$(top_builddir)/sys:$(GSTPB_PLUGINS_DIR):$(GST_PLUGINS_DIR)  \
-	GST_PLUGIN_LOADING_WHITELIST="gstreamer@$(GST_PLUGINS_DIR):gst-plugins-base@$(GSTPB_PLUGINS_DIR):gst-plugins-ugly@$(top_builddir)" \
-	GST_STATE_IGNORE_ELEMENTS="siddec dvdreadsrc cdiocddasrc"
 
 
 # ths core dumps of some machines have PIDs appended
@@ -735,6 +749,8 @@ TESTS = $(check_PROGRAMS)
 @USE_LAME_TRUE@LAME = pipelines/lame
 @USE_MPEG2DEC_FALSE@MPEG2DEC = 
 @USE_MPEG2DEC_TRUE@MPEG2DEC = elements/mpeg2dec
+@USE_MPG123_FALSE@check_mpg123 = 
+@USE_MPG123_TRUE@check_mpg123 = elements/mpg123audiodec
 @USE_X264_FALSE@check_x264enc = 
 @USE_X264_TRUE@check_x264enc = elements/x264enc
 @USE_PLUGIN_XINGMUX_FALSE@check_xingmux = 
@@ -742,6 +758,7 @@ TESTS = $(check_PROGRAMS)
 noinst_HEADERS = elements/xingmux_testdata.h
 AM_CFLAGS = $(GST_OBJ_CFLAGS) $(GST_CHECK_CFLAGS) $(CHECK_CFLAGS) \
 	-DGST_CHECK_TEST_ENVIRONMENT_BEACON="\"GST_PLUGIN_LOADING_WHITELIST\"" \
+	-DGST_TEST_FILES_PATH="\"$(TEST_FILES_DIRECTORY)\"" \
 	-UG_DISABLE_ASSERT -UG_DISABLE_CAST_CHECKS
 
 LDADD = $(GST_OBJ_LIBS) $(GST_CHECK_LIBS) $(CHECK_LIBS)
@@ -755,6 +772,11 @@ elements_amrnbenc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(AM_CFLAGS)
 elements_amrnbenc_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstaudio-$(GST_API_VERSION) $(LDADD)
 elements_cmmldec_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(AM_CFLAGS)
 elements_cmmlenc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(AM_CFLAGS)
+elements_mpg123audiodec_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_mpg123audiodec_LDADD = \
+	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
+	-lgstaudio-@GST_API_VERSION@ -lgstfft-@GST_API_VERSION@ -lgstapp-@GST_API_VERSION@
+
 EXTRA_DIST = gst-plugins-ugly.supp
 all: all-am
 
@@ -826,6 +848,12 @@ elements/mpeg2dec.$(OBJEXT): elements/$(am__dirstamp) \
 elements/mpeg2dec$(EXEEXT): $(elements_mpeg2dec_OBJECTS) $(elements_mpeg2dec_DEPENDENCIES) $(EXTRA_elements_mpeg2dec_DEPENDENCIES) elements/$(am__dirstamp)
 	@rm -f elements/mpeg2dec$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(elements_mpeg2dec_OBJECTS) $(elements_mpeg2dec_LDADD) $(LIBS)
+elements/elements_mpg123audiodec-mpg123audiodec.$(OBJEXT):  \
+	elements/$(am__dirstamp) elements/$(DEPDIR)/$(am__dirstamp)
+
+elements/mpg123audiodec$(EXEEXT): $(elements_mpg123audiodec_OBJECTS) $(elements_mpg123audiodec_DEPENDENCIES) $(EXTRA_elements_mpg123audiodec_DEPENDENCIES) elements/$(am__dirstamp)
+	@rm -f elements/mpg123audiodec$(EXEEXT)
+	$(AM_V_CCLD)$(elements_mpg123audiodec_LINK) $(elements_mpg123audiodec_OBJECTS) $(elements_mpg123audiodec_LDADD) $(LIBS)
 elements/x264enc.$(OBJEXT): elements/$(am__dirstamp) \
 	elements/$(DEPDIR)/$(am__dirstamp)
 
@@ -873,6 +901,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_amrnbenc-amrnbenc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/mpeg2dec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/x264enc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@elements/$(DEPDIR)/xingmux.Po@am__quote@
@@ -916,6 +945,20 @@ elements/elements_amrnbenc-amrnbenc.obj: elements/amrnbenc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/amrnbenc.c' object='elements/elements_amrnbenc-amrnbenc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_amrnbenc_CFLAGS) $(CFLAGS) -c -o elements/elements_amrnbenc-amrnbenc.obj `if test -f 'elements/amrnbenc.c'; then $(CYGPATH_W) 'elements/amrnbenc.c'; else $(CYGPATH_W) '$(srcdir)/elements/amrnbenc.c'; fi`
+
+elements/elements_mpg123audiodec-mpg123audiodec.o: elements/mpg123audiodec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -MT elements/elements_mpg123audiodec-mpg123audiodec.o -MD -MP -MF elements/$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo -c -o elements/elements_mpg123audiodec-mpg123audiodec.o `test -f 'elements/mpg123audiodec.c' || echo '$(srcdir)/'`elements/mpg123audiodec.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo elements/$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpg123audiodec.c' object='elements/elements_mpg123audiodec-mpg123audiodec.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -c -o elements/elements_mpg123audiodec-mpg123audiodec.o `test -f 'elements/mpg123audiodec.c' || echo '$(srcdir)/'`elements/mpg123audiodec.c
+
+elements/elements_mpg123audiodec-mpg123audiodec.obj: elements/mpg123audiodec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -MT elements/elements_mpg123audiodec-mpg123audiodec.obj -MD -MP -MF elements/$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo -c -o elements/elements_mpg123audiodec-mpg123audiodec.obj `if test -f 'elements/mpg123audiodec.c'; then $(CYGPATH_W) 'elements/mpg123audiodec.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpg123audiodec.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) elements/$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Tpo elements/$(DEPDIR)/elements_mpg123audiodec-mpg123audiodec.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='elements/mpg123audiodec.c' object='elements/elements_mpg123audiodec-mpg123audiodec.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(elements_mpg123audiodec_CFLAGS) $(CFLAGS) -c -o elements/elements_mpg123audiodec-mpg123audiodec.obj `if test -f 'elements/mpg123audiodec.c'; then $(CYGPATH_W) 'elements/mpg123audiodec.c'; else $(CYGPATH_W) '$(srcdir)/elements/mpg123audiodec.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1147,6 +1190,13 @@ elements/mpeg2dec.log: elements/mpeg2dec$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+elements/mpg123audiodec.log: elements/mpg123audiodec$(EXEEXT)
+	@p='elements/mpg123audiodec$(EXEEXT)'; \
+	b='elements/mpg123audiodec'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 elements/x264enc.log: elements/x264enc$(EXEEXT)
 	@p='elements/x264enc$(EXEEXT)'; \
 	b='elements/x264enc'; \
@@ -1359,31 +1409,26 @@ LOOPS ?= 10
 # if the test fails, run it again at at least debug level 2
 %.check: %
 	@$(AM_TESTS_ENVIRONMENT)					\
-	CK_DEFAULT_TIMEOUT=20					\
 	$* ||							\
 	$(AM_TESTS_ENVIRONMENT)					\
 	GST_DEBUG=$$GST_DEBUG,*:2				\
-	CK_DEFAULT_TIMEOUT=20					\
 	$*
 
 # just like 'check', but don't run it again if it fails (useful for debugging)
 %.check-norepeat: %
 	@$(AM_TESTS_ENVIRONMENT)					\
-	CK_DEFAULT_TIMEOUT=20					\
 	$*
 
 # run any given test in a loop
 %.torture: %
 	@for i in `seq 1 $(LOOPS)`; do				\
 	$(AM_TESTS_ENVIRONMENT)					\
-	CK_DEFAULT_TIMEOUT=20					\
 	$*; done
 
 # run any given test in an infinite loop
 %.forever: %
 	@while true; do						\
 	$(AM_TESTS_ENVIRONMENT)					\
-	CK_DEFAULT_TIMEOUT=20					\
 	$* || break; done
 
 # valgrind any given test by running make test.valgrind
@@ -1399,7 +1444,7 @@ LOOPS ?= 10
 	--show-possibly-lost=no                                 \
 	--leak-resolution=high --num-callers=20			\
 	./$* 2>&1 | tee $$valgrind_log ;			\
-	if grep "==" $$valgrind_log > /dev/null 2>&1; then	\
+	if grep "^==" $$valgrind_log > /dev/null 2>&1; then	\
 	    rm $$valgrind_log;					\
 	    exit 1;						\
 	fi ;							\

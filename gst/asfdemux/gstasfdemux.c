@@ -175,6 +175,21 @@ gst_asf_demux_free_stream (GstASFDemux * demux, AsfStream * stream)
     g_array_free (stream->payloads, TRUE);
     stream->payloads = NULL;
   }
+
+  if (stream->payloads_rev) {
+    while (stream->payloads_rev->len > 0) {
+      AsfPayload *payload;
+      guint last;
+
+      last = stream->payloads_rev->len - 1;
+      payload = &g_array_index (stream->payloads_rev, AsfPayload, last);
+      gst_buffer_replace (&payload->buf, NULL);
+      g_array_remove_index (stream->payloads_rev, last);
+    }
+    g_array_free (stream->payloads_rev, TRUE);
+    stream->payloads_rev = NULL;
+  }
+
   if (stream->ext_props.valid) {
     g_free (stream->ext_props.payload_extensions);
     stream->ext_props.payload_extensions = NULL;
@@ -274,6 +289,7 @@ gst_asf_demux_reset (GstASFDemux * demux, gboolean chain_reset)
     demux->need_newsegment = TRUE;
     demux->segment_seqnum = 0;
     demux->segment_running = FALSE;
+    demux->keyunit_sync = FALSE;
     demux->accurate = FALSE;
     demux->metadata = gst_caps_new_empty ();
     demux->global_metadata = gst_structure_new_empty ("metadata");
@@ -622,7 +638,7 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
   GstSeekType cur_type, stop_type;
   GstFormat format;
   gboolean only_need_update;
-  gboolean keyunit_sync, after, before, next;
+  gboolean after, before, next;
   gboolean flush;
   gdouble rate;
   gint64 cur, stop;
@@ -631,6 +647,7 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
   gboolean eos;
   guint32 seqnum;
   GstEvent *fevent;
+  gint i;
 
   gst_event_parse_seek (event, &rate, &format, &flags, &cur_type, &cur,
       &stop_type, &stop);
@@ -657,15 +674,19 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
   }
 
   if (G_UNLIKELY (rate <= 0.0)) {
-    GST_LOG_OBJECT (demux, "backward playback is not supported yet");
-    return FALSE;
+    GST_LOG_OBJECT (demux, "backward playback");
+    demux->seek_to_cur_pos = TRUE;
+    for (i = 0; i < demux->num_streams; i++) {
+      demux->stream[i].reverse_kf_ready = FALSE;
+    }
   }
 
   seqnum = gst_event_get_seqnum (event);
   flush = ((flags & GST_SEEK_FLAG_FLUSH) == GST_SEEK_FLAG_FLUSH);
   demux->accurate =
       ((flags & GST_SEEK_FLAG_ACCURATE) == GST_SEEK_FLAG_ACCURATE);
-  keyunit_sync = ((flags & GST_SEEK_FLAG_KEY_UNIT) == GST_SEEK_FLAG_KEY_UNIT);
+  demux->keyunit_sync =
+      ((flags & GST_SEEK_FLAG_KEY_UNIT) == GST_SEEK_FLAG_KEY_UNIT);
   after = ((flags & GST_SEEK_FLAG_SNAP_AFTER) == GST_SEEK_FLAG_SNAP_AFTER);
   before = ((flags & GST_SEEK_FLAG_SNAP_BEFORE) == GST_SEEK_FLAG_SNAP_BEFORE);
   next = after && !before;
@@ -765,7 +786,7 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
        * the hope of hitting a keyframe and let the sinks throw away the stuff
        * before the segment start. For audio-only this is unnecessary as every
        * frame is 'key'. */
-      if (flush && (demux->accurate || (keyunit_sync && !next))
+      if (flush && (demux->accurate || (demux->keyunit_sync && !next))
           && demux->num_video_streams > 0) {
         seek_time -= 5 * GST_SECOND;
         if (seek_time < 0)
@@ -779,7 +800,7 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
         packet = demux->num_packets;
     }
   } else {
-    if (G_LIKELY (keyunit_sync)) {
+    if (G_LIKELY (demux->keyunit_sync && !demux->accurate)) {
       GST_DEBUG_OBJECT (demux, "key unit seek, adjust seek_time = %"
           GST_TIME_FORMAT " to index_time = %" GST_TIME_FORMAT,
           GST_TIME_ARGS (seek_time), GST_TIME_ARGS (idx_time));
@@ -793,10 +814,17 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
 
   GST_OBJECT_LOCK (demux);
   demux->segment = segment;
-  demux->packet = packet;
+  if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment)) {
+    demux->packet = (gint64) gst_util_uint64_scale (demux->num_packets,
+        stop, demux->play_time);
+  } else {
+    demux->packet = packet;
+  }
+
   demux->need_newsegment = TRUE;
   demux->segment_seqnum = seqnum;
-  demux->speed_packets = speed_count;
+  demux->speed_packets =
+      GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment) ? 1 : speed_count;
   gst_asf_demux_reset_stream_state_after_discont (demux);
   GST_OBJECT_UNLOCK (demux);
 
@@ -1529,46 +1557,77 @@ gst_asf_demux_find_stream_with_complete_payload (GstASFDemux * demux)
       AsfPayload *payload = NULL;
       gint last_idx;
 
-      /* find last payload with timestamp */
-      for (last_idx = stream->payloads->len - 1;
-          last_idx >= 0 && (payload == NULL
-              || !GST_CLOCK_TIME_IS_VALID (payload->ts)); --last_idx) {
-        payload = &g_array_index (stream->payloads, AsfPayload, last_idx);
-      }
+      if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment)) {
+        /* Reverse playback */
 
-      /* if this is first payload after seek we might need to update the segment */
-      if (GST_CLOCK_TIME_IS_VALID (payload->ts))
-        gst_asf_demux_check_segment_ts (demux, payload->ts);
-
-      if (G_UNLIKELY (GST_CLOCK_TIME_IS_VALID (payload->ts) &&
-              (payload->ts < demux->segment.start))) {
-        if (G_UNLIKELY ((!demux->accurate) && payload->keyframe)) {
-          GST_DEBUG_OBJECT (stream->pad,
-              "Found keyframe, updating segment start to %" GST_TIME_FORMAT,
-              GST_TIME_ARGS (payload->ts));
-          demux->segment.start = payload->ts;
-          demux->segment.time = payload->ts;
+        if (stream->is_video) {
+          /* We have to push payloads from KF to the first frame we accumulated (reverse order) */
+          if (stream->reverse_kf_ready) {
+            payload =
+                &g_array_index (stream->payloads, AsfPayload, stream->kf_pos);
+            if (G_UNLIKELY (!GST_CLOCK_TIME_IS_VALID (payload->ts))) {
+              /* TODO : remove payload from the list? */
+              continue;
+            }
+          } else {
+            continue;
+          }
         } else {
-          GST_DEBUG_OBJECT (stream->pad, "Last queued payload has timestamp %"
-              GST_TIME_FORMAT " which is before our segment start %"
-              GST_TIME_FORMAT ", not pushing yet", GST_TIME_ARGS (payload->ts),
-              GST_TIME_ARGS (demux->segment.start));
-          continue;
+          /* find first complete payload with timestamp */
+          for (j = stream->payloads->len - 1;
+              j >= 0 && (payload == NULL
+                  || !GST_CLOCK_TIME_IS_VALID (payload->ts)); --j) {
+            payload = &g_array_index (stream->payloads, AsfPayload, j);
+          }
+
+          /* If there's a complete payload queued for this stream */
+          if (!gst_asf_payload_is_complete (payload))
+            continue;
+
         }
+      } else {
+
+        /* find last payload with timestamp */
+        for (last_idx = stream->payloads->len - 1;
+            last_idx >= 0 && (payload == NULL
+                || !GST_CLOCK_TIME_IS_VALID (payload->ts)); --last_idx) {
+          payload = &g_array_index (stream->payloads, AsfPayload, last_idx);
+        }
+
+        /* if this is first payload after seek we might need to update the segment */
+        if (GST_CLOCK_TIME_IS_VALID (payload->ts))
+          gst_asf_demux_check_segment_ts (demux, payload->ts);
+
+        if (G_UNLIKELY (GST_CLOCK_TIME_IS_VALID (payload->ts) &&
+                (payload->ts < demux->segment.start))) {
+          if (G_UNLIKELY ((!demux->keyunit_sync) && (!demux->accurate)
+                  && payload->keyframe)) {
+            GST_DEBUG_OBJECT (stream->pad,
+                "Found keyframe, updating segment start to %" GST_TIME_FORMAT,
+                GST_TIME_ARGS (payload->ts));
+            demux->segment.start = payload->ts;
+            demux->segment.time = payload->ts;
+          } else {
+            GST_DEBUG_OBJECT (stream->pad, "Last queued payload has timestamp %"
+                GST_TIME_FORMAT " which is before our segment start %"
+                GST_TIME_FORMAT ", not pushing yet",
+                GST_TIME_ARGS (payload->ts),
+                GST_TIME_ARGS (demux->segment.start));
+            continue;
+          }
+        }
+        payload = NULL;
+        /* find first complete payload with timestamp */
+        for (j = 0;
+            j < stream->payloads->len && (payload == NULL
+                || !GST_CLOCK_TIME_IS_VALID (payload->ts)); ++j) {
+          payload = &g_array_index (stream->payloads, AsfPayload, j);
+        }
+
+        /* Now see if there's a complete payload queued for this stream */
+        if (!gst_asf_payload_is_complete (payload))
+          continue;
       }
-
-      /* Now see if there's a complete payload queued for this stream */
-
-      payload = NULL;
-      /* find first complete payload with timestamp */
-      for (j = 0;
-          j < stream->payloads->len && (payload == NULL
-              || !GST_CLOCK_TIME_IS_VALID (payload->ts)); ++j) {
-        payload = &g_array_index (stream->payloads, AsfPayload, j);
-      }
-
-      if (!gst_asf_payload_is_complete (payload))
-        continue;
 
       /* ... and whether its timestamp is lower than the current best */
       if (best_stream == NULL || best_payload->ts > payload->ts) {
@@ -1595,13 +1654,20 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
 
   while ((stream = gst_asf_demux_find_stream_with_complete_payload (demux))) {
     AsfPayload *payload;
+    GstClockTime timestamp = GST_CLOCK_TIME_NONE;
+    GstClockTime duration = GST_CLOCK_TIME_NONE;
 
     /* wait until we had a chance to "lock on" some payload's timestamp */
     if (G_UNLIKELY (demux->need_newsegment
             && !GST_CLOCK_TIME_IS_VALID (demux->segment_ts)))
       return GST_FLOW_OK;
 
-    payload = &g_array_index (stream->payloads, AsfPayload, 0);
+    if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment) && stream->is_video
+        && stream->payloads->len) {
+      payload = &g_array_index (stream->payloads, AsfPayload, stream->kf_pos);
+    } else {
+      payload = &g_array_index (stream->payloads, AsfPayload, 0);
+    }
 
     /* do we need to send a newsegment event */
     if ((G_UNLIKELY (demux->need_newsegment))) {
@@ -1618,8 +1684,9 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
       }
 
       /* FIXME : only if ACCURATE ! */
-      if (G_LIKELY (!demux->accurate
-              && (GST_CLOCK_TIME_IS_VALID (payload->ts)))) {
+      if (G_LIKELY (!demux->keyunit_sync && !demux->accurate
+              && (GST_CLOCK_TIME_IS_VALID (payload->ts)))
+          && !GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment)) {
         GST_DEBUG ("Adjusting newsegment start to %" GST_TIME_FORMAT,
             GST_TIME_ARGS (payload->ts));
         demux->segment.start = payload->ts;
@@ -1708,21 +1775,54 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
      * typically useful for live src, but might (unavoidably) mess with
      * position reporting if a live src is playing not so live content
      * (e.g. rtspsrc taking some time to fall back to tcp) */
-    GST_BUFFER_PTS (payload->buf) = payload->ts;
-    if (GST_BUFFER_PTS_IS_VALID (payload->buf)) {
-      GST_BUFFER_PTS (payload->buf) += demux->in_gap;
+    timestamp = payload->ts;
+    if (GST_CLOCK_TIME_IS_VALID (timestamp)
+        && !GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment)) {
+      timestamp += demux->in_gap;
+
+      /* Check if we're after the segment already, if so no need to push
+       * anything here */
+      if (demux->segment.stop != -1 && timestamp > demux->segment.stop) {
+        GST_DEBUG_OBJECT (stream->pad,
+            "Payload after segment stop %" GST_TIME_FORMAT,
+            GST_TIME_ARGS (demux->segment.stop));
+        ret =
+            gst_flow_combiner_update_pad_flow (demux->flowcombiner, stream->pad,
+            GST_FLOW_EOS);
+        gst_buffer_unref (payload->buf);
+        payload->buf = NULL;
+        g_array_remove_index (stream->payloads, 0);
+        /* Break out as soon as we have an issue */
+        if (G_UNLIKELY (ret != GST_FLOW_OK))
+          break;
+
+        continue;
+      }
     }
+
+    GST_BUFFER_PTS (payload->buf) = timestamp;
+
     if (payload->duration == GST_CLOCK_TIME_NONE
-        && stream->ext_props.avg_time_per_frame != 0)
-      GST_BUFFER_DURATION (payload->buf) =
-          stream->ext_props.avg_time_per_frame * 100;
-    else
-      GST_BUFFER_DURATION (payload->buf) = payload->duration;
+        && stream->ext_props.avg_time_per_frame != 0) {
+      duration = stream->ext_props.avg_time_per_frame * 100;
+    } else {
+      duration = payload->duration;
+    }
+    GST_BUFFER_DURATION (payload->buf) = duration;
 
     /* FIXME: we should really set durations on buffers if we can */
 
     GST_LOG_OBJECT (stream->pad, "pushing buffer, %" GST_PTR_FORMAT,
         payload->buf);
+
+    if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment) && stream->is_video) {
+      if (stream->reverse_kf_ready == TRUE && stream->kf_pos == 0) {
+        GST_BUFFER_FLAG_SET (payload->buf, GST_BUFFER_FLAG_DISCONT);
+      }
+    } else if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment)) {
+      GST_BUFFER_FLAG_SET (payload->buf, GST_BUFFER_FLAG_DISCONT);
+    }
+
 
     if (stream->active) {
       if (G_UNLIKELY (stream->first_buffer)) {
@@ -1734,14 +1834,34 @@ gst_asf_demux_push_complete_payloads (GstASFDemux * demux, gboolean force)
         stream->first_buffer = FALSE;
       }
 
+      if (GST_CLOCK_TIME_IS_VALID (timestamp)
+          && timestamp > demux->segment.position) {
+        demux->segment.position = timestamp;
+        if (GST_CLOCK_TIME_IS_VALID (duration))
+          demux->segment.position += timestamp;
+      }
+
       ret = gst_pad_push (stream->pad, payload->buf);
-      ret = gst_flow_combiner_update_flow (demux->flowcombiner, ret);
+      ret =
+          gst_flow_combiner_update_pad_flow (demux->flowcombiner, stream->pad,
+          ret);
     } else {
       gst_buffer_unref (payload->buf);
       ret = GST_FLOW_OK;
     }
     payload->buf = NULL;
-    g_array_remove_index (stream->payloads, 0);
+    if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment) && stream->is_video
+        && stream->reverse_kf_ready) {
+      g_array_remove_index (stream->payloads, stream->kf_pos);
+      stream->kf_pos--;
+
+      if (stream->reverse_kf_ready == TRUE && stream->kf_pos < 0) {
+        stream->kf_pos = 0;
+        stream->reverse_kf_ready = FALSE;
+      }
+    } else {
+      g_array_remove_index (stream->payloads, 0);
+    }
 
     /* Break out as soon as we have an issue */
     if (G_UNLIKELY (ret != GST_FLOW_OK))
@@ -1808,7 +1928,6 @@ gst_asf_demux_loop (GstASFDemux * demux)
   GstFlowReturn flow = GST_FLOW_OK;
   GstBuffer *buf = NULL;
   guint64 off;
-  gboolean sent_eos = FALSE;
 
   if (G_UNLIKELY (demux->state == GST_ASF_DEMUX_STATE_HEADER)) {
     if (!gst_asf_demux_pull_headers (demux, &flow)) {
@@ -1832,13 +1951,14 @@ gst_asf_demux_loop (GstASFDemux * demux)
   if (G_UNLIKELY (!gst_asf_demux_pull_data (demux, off,
               demux->packet_size * demux->speed_packets, &buf, &flow))) {
     GST_DEBUG_OBJECT (demux, "got flow %s", gst_flow_get_name (flow));
-    if (flow == GST_FLOW_EOS)
+    if (flow == GST_FLOW_EOS) {
       goto eos;
-    else if (flow == GST_FLOW_FLUSHING) {
+    } else if (flow == GST_FLOW_FLUSHING) {
       GST_DEBUG_OBJECT (demux, "Not fatal");
       goto pause;
-    } else
+    } else {
       goto read_failed;
+    }
   }
 
   if (G_LIKELY (demux->speed_packets == 1)) {
@@ -1861,13 +1981,31 @@ gst_asf_demux_loop (GstASFDemux * demux)
 
       GST_INFO_OBJECT (demux, "Ignoring recoverable parse error");
       gst_buffer_unref (buf);
-      ++demux->packet;
+
+      if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment)
+          && !demux->seek_to_cur_pos) {
+        --demux->packet;
+        if (demux->packet < 0) {
+          goto eos;
+        }
+      } else {
+        ++demux->packet;
+      }
+
       return;
     }
 
     flow = gst_asf_demux_push_complete_payloads (demux, FALSE);
 
-    ++demux->packet;
+    if (GST_ASF_DEMUX_IS_REVERSE_PLAYBACK (demux->segment)
+        && !demux->seek_to_cur_pos) {
+      --demux->packet;
+      if (demux->packet < 0) {
+        goto eos;
+      }
+    } else {
+      ++demux->packet;
+    }
 
   } else {
     guint n;
@@ -1914,8 +2052,9 @@ gst_asf_demux_loop (GstASFDemux * demux)
 
   gst_buffer_unref (buf);
 
-  if (G_UNLIKELY (demux->num_packets > 0
-          && demux->packet >= demux->num_packets)) {
+  if (G_UNLIKELY ((demux->num_packets > 0
+              && demux->packet >= demux->num_packets)
+          || flow == GST_FLOW_EOS)) {
     GST_LOG_OBJECT (demux, "reached EOS");
     goto eos;
   }
@@ -1961,10 +2100,12 @@ eos:
         return;
       }
     }
-    /* normal playback, send EOS to all linked pads */
-    GST_INFO_OBJECT (demux, "Sending EOS, at end of stream");
-    gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
-    sent_eos = TRUE;
+
+    if (!(demux->segment.flags & GST_SEEK_FLAG_SEGMENT)) {
+      /* normal playback, send EOS to all linked pads */
+      GST_INFO_OBJECT (demux, "Sending EOS, at end of stream");
+      gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
+    }
     /* ... and fall through to pause */
   }
 pause:
@@ -1974,17 +2115,15 @@ pause:
     demux->segment_running = FALSE;
     gst_pad_pause_task (demux->sinkpad);
 
-    /* For the error cases (not EOS) */
-    if (!sent_eos) {
-      if (flow == GST_FLOW_EOS)
-        gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
-      else if (flow < GST_FLOW_EOS || flow == GST_FLOW_NOT_LINKED) {
-        /* Post an error. Hopefully something else already has, but if not... */
-        GST_ELEMENT_ERROR (demux, STREAM, FAILED,
-            (_("Internal data stream error.")),
-            ("streaming stopped, reason %s", gst_flow_get_name (flow)));
-      }
+    /* For the error cases */
+    if (flow < GST_FLOW_EOS || flow == GST_FLOW_NOT_LINKED) {
+      /* Post an error. Hopefully something else already has, but if not... */
+      GST_ELEMENT_ERROR (demux, STREAM, FAILED,
+          (_("Internal data stream error.")),
+          ("streaming stopped, reason %s", gst_flow_get_name (flow)));
+      gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
     }
+
     return;
   }
 
@@ -1992,7 +2131,6 @@ pause:
 read_failed:
   {
     GST_DEBUG_OBJECT (demux, "Read failed, doh");
-    gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
     flow = GST_FLOW_EOS;
     goto pause;
   }
@@ -2405,6 +2543,9 @@ gst_asf_demux_setup_pad (GstASFDemux * demux, GstPad * src_pad,
   }
 
   stream->payloads = g_array_new (FALSE, FALSE, sizeof (AsfPayload));
+
+  /* TODO: create this array during reverse play? */
+  stream->payloads_rev = g_array_new (FALSE, FALSE, sizeof (AsfPayload));
 
   GST_INFO ("Created pad %s for stream %u with caps %" GST_PTR_FORMAT,
       GST_PAD_NAME (src_pad), demux->num_streams, caps);
@@ -3610,10 +3751,10 @@ gst_asf_demux_process_bitrate_props_object (GstASFDemux * demux, guint8 * data,
       GST_DEBUG_OBJECT (demux, "bitrate of stream %u = %u", stream_id, bitrate);
       stream = gst_asf_demux_get_stream (demux, stream_id);
       if (stream) {
-        if (stream->pending_tags == NULL) {
-          stream->pending_tags =
-              gst_tag_list_new (GST_TAG_BITRATE, bitrate, NULL);
-        }
+        if (stream->pending_tags == NULL)
+          stream->pending_tags = gst_tag_list_new_empty ();
+        gst_tag_list_add (stream->pending_tags, GST_TAG_MERGE_REPLACE,
+            GST_TAG_BITRATE, bitrate, NULL);
       } else {
         GST_WARNING_OBJECT (demux, "Stream id %u wasn't found", stream_id);
       }
@@ -4528,6 +4669,7 @@ gst_asf_demux_change_state (GstElement * element, GstStateChange transition)
       gst_segment_init (&demux->segment, GST_FORMAT_TIME);
       demux->need_newsegment = TRUE;
       demux->segment_running = FALSE;
+      demux->keyunit_sync = FALSE;
       demux->accurate = FALSE;
       demux->adapter = gst_adapter_new ();
       demux->metadata = gst_caps_new_empty ();
@@ -4537,6 +4679,7 @@ gst_asf_demux_change_state (GstElement * element, GstStateChange transition)
       demux->index_offset = 0;
       demux->base_offset = 0;
       demux->flowcombiner = gst_flow_combiner_new ();
+
       break;
     }
     default:
