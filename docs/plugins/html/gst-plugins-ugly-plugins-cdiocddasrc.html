@@ -82,10 +82,61 @@ GstCdioCddaSrc implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-ugly-plugins-cdiocddasrc.description"></a><h2>Description</h2>
+<div class="refsect2">
+<a name="id-1.2.6.8.2"></a><h3>Example launch line</h3>
+<p>
+cdiocddasrc reads and extracts raw audio from Audio CDs. It can operate
+in one of two modes:
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+   treat each track as a separate stream, counting time from the start
+   of the track to the end of the track and posting EOS at the end of
+   a track, or
+ </p></li>
+<li class="listitem"><p>
+   treat the entire disc as one stream, counting time from the start of
+   the first track to the end of the last track, posting EOS only at
+   the end of the last track.
+ </p></li>
+</ul></div>
+<p>
+</p>
+<p>
+With a recent-enough version of libcdio, the element will extract
+CD-TEXT if this is supported by the CD-drive and CD-TEXT information
+is available on the CD. The information will be posted on the bus in
+form of a tag message.
+</p>
+<p>
+When opened, the element will also calculate a CDDB disc ID and a
+MusicBrainz disc ID, which applications can use to query online
+databases for artist/title information. These disc IDs will also be
+posted on the bus as part of the tag messages.
+</p>
+<p>
+cdiocddasrc supports the GstUriHandler interface, so applications can use
+playbin with cdda://&lt;track-number&gt; URIs for playback (they will have
+to connect to playbin's notify::source signal and set the device on the
+cd source in the notify callback if they want to set the device property).
+Applications should use seeks in "track" format to switch between different
+tracks of the same CD (passing a new cdda:// URI to playbin involves opening
+and closing the CD device, which is much slower).
+</p>
+<p>
+</p>
+<pre class="programlisting">
+gst-launch-1.0 cdiocddasrc track=5 device=/dev/cdrom ! audioconvert ! vorbisenc ! oggmux ! filesink location=track5.ogg
+</pre>
+<p>
+This pipeline extracts track 5 of the audio CD and encodes it into an
+Ogg/Vorbis file.
+</p>
+</div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.6.8.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.6.8.3.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -111,7 +162,7 @@ GstCdioCddaSrc implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.6.8.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.6.8.3.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -160,6 +211,10 @@ GstCdioCddaSrc implements
 <p>Allowed values: [G_MAXULONG,100]</p>
 <p>Default value: -1</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-ugly-plugins-cdiocddasrc.see-also"></a><h2>See Also</h2>
+<p>GstCdParanoiaSrc, GstAudioCdSrc</p>
 </div>
 </div>
 <div class="footer">
