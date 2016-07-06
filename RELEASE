@@ -1,15 +1,15 @@
 
-Release notes for GStreamer Ugly Plugins 1.8.2
+Release notes for GStreamer Ugly Plugins 1.9.1
 
-The GStreamer team is proud to announce the second bugfix release in the stable
-1.8 release series of your favourite cross-platform multimedia framework!
+The GStreamer team is pleased to announce the first release of the unstable
+1.9 release series. The 1.9 release series is adding new features on top of
+the 1.0, 1.2, 1.4, 1.6 and 1.8 series and is part of the API and ABI-stable 1.x release
+series of the GStreamer multimedia framework. The unstable 1.9 release series
+will lead to the stable 1.10 release series in the next weeks. Any newly added
+API can still change until that point.
 
 
-This release only contains bugfixes and it is safe to update from 1.8.1. For a
-full list of bugfixes see Bugzilla.
-
-
-See /releases/1.8/ for the full release notes.
+Binaries for Android, iOS, Mac OS X and Windows will be provided in the next days.
 
 
 "When you have to shoot, shoot.  Don't talk."
@@ -57,8 +57,7 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 749066 : asfdemux: can't seek back after reaching EOS in push mode
-      * 766565 : rdtmanager: fix clock leak
+      * 763082 : ugly plugins: use new gst_element_class_add_static_pad_template()
 
 ==== Download ====
 
@@ -96,6 +95,10 @@ subscribe to the gstreamer-devel list.
 Contributors to this release
     
       * Guillaume Desmottes
+      * Julien Isorce
+      * Nicolas Dufresne
       * Sebastian Dröge
+      * Tim-Philipp Müller
+      * Vineeth TM
       * Vootele Vesterblom
  

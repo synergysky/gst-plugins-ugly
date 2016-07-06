@@ -107,10 +107,82 @@ GstLameMP3Enc implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-ugly-plugins-lamemp3enc.description"></a><h2>Description</h2>
+<p>This element encodes raw integer audio into an MPEG-1 layer 3 (MP3) stream.
+Note that <a class="ulink" href="http://en.wikipedia.org/wiki/MP3" target="_top">MP3</a> is not
+a free format, there are licensing and patent issues to take into
+consideration. See <a class="ulink" href="http://www.vorbis.com/" target="_top">Ogg/Vorbis</a>
+for a royalty free (and often higher quality) alternative.</p>
+<div class="refsect2">
+<a name="id-1.2.7.8.3"></a><h3>Output sample rate</h3>
+If no fixed output sample rate is negotiated on the element's src pad,
+the element will choose an optimal sample rate to resample to internally.
+For example, a 16-bit 44.1 KHz mono audio stream encoded at 48 kbit will
+get resampled to 32 KHz.  Use filter caps on the src pad to force a
+particular sample rate.
+</div>
+<hr>
+<div class="refsect2">
+<a name="id-1.2.7.8.4"></a><h3>Example pipelines</h3>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> <span class="gtkdoc opt">-</span>v audiotestsrc wave<span class="gtkdoc opt">=</span>sine num<span class="gtkdoc opt">-</span>buffers<span class="gtkdoc opt">=</span><span class="number">100</span> <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> lamemp3enc <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>sine<span class="gtkdoc opt">.</span>mp3</pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ Encode a test sine signal to MP3.
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> <span class="gtkdoc opt">-</span>v autoaudiosrc <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> lamemp3enc target<span class="gtkdoc opt">=</span>bitrate bitrate<span class="gtkdoc opt">=</span><span class="number">192</span> <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>alsasrc<span class="gtkdoc opt">.</span>mp3</pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ Record from a sound card using ALSA and encode to MP3 with an average bitrate of 192kbps
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> <span class="gtkdoc opt">-</span>v filesrc location<span class="gtkdoc opt">=</span>music<span class="gtkdoc opt">.</span>wav <span class="gtkdoc opt">!</span> decodebin <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> audioresample <span class="gtkdoc opt">!</span> lamemp3enc target<span class="gtkdoc opt">=</span>quality quality<span class="gtkdoc opt">=</span><span class="number">0</span> <span class="gtkdoc opt">!</span> id3v2mux <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>music<span class="gtkdoc opt">.</span>mp3</pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ Transcode from a .wav file to MP3 (the id3v2mux element is optional) with best VBR quality
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> <span class="gtkdoc opt">-</span>v cdda<span class="gtkdoc opt">:</span><span class="gtkdoc slc">//5 ! audioconvert ! lamemp3enc target=bitrate cbr=true bitrate=192 ! filesink location=track5.mp3</span></pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ Encode Audio CD track 5 to MP3 with a constant bitrate of 192kbps
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> <span class="gtkdoc opt">-</span>v audiotestsrc num<span class="gtkdoc opt">-</span>buffers<span class="gtkdoc opt">=</span><span class="number">10</span> <span class="gtkdoc opt">!</span> audio<span class="gtkdoc opt">/</span>x<span class="gtkdoc opt">-</span>raw<span class="gtkdoc opt">,</span>rate<span class="gtkdoc opt">=</span><span class="number">44100</span><span class="gtkdoc opt">,</span>channels<span class="gtkdoc opt">=</span><span class="number">1</span> <span class="gtkdoc opt">!</span> lamemp3enc target<span class="gtkdoc opt">=</span>bitrate cbr<span class="gtkdoc opt">=</span><span class="keyword">true</span> bitrate<span class="gtkdoc opt">=</span><span class="number">48</span> <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>test<span class="gtkdoc opt">.</span>mp3</pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+ Encode to a fixed sample rate
+</div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.7.8.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.7.8.5.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -136,7 +208,7 @@ GstLameMP3Enc implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.7.8.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.7.8.5.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -201,6 +273,7 @@ GstLameMP3Enc implements
 <div class="refsect2">
 <a name="GstLameMP3Enc-struct"></a><h3>struct GstLameMP3Enc</h3>
 <pre class="programlisting">struct GstLameMP3Enc;</pre>
+<p>Opaque data structure.</p>
 </div>
 </div>
 <div class="refsect1">
@@ -254,6 +327,10 @@ GstLameMP3Enc implements
 <p>Flags: Read / Write / Construct</p>
 <p>Default value: Quality</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-ugly-plugins-lamemp3enc.see-also"></a><h2>See Also</h2>
+<p>lame, mad, vorbisenc</p>
 </div>
 </div>
 <div class="footer">

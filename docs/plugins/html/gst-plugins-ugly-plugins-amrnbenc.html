@@ -80,10 +80,28 @@ GstAmrnbEnc implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-ugly-plugins-amrnbenc.description"></a><h2>Description</h2>
+<p>AMR narrowband encoder based on the </p>
+<a class="ulink" href="http://sourceforge.net/projects/opencore-amr" target="_top">opencore codec implementation</a>.
+<div class="refsect2">
+<a name="id-1.2.4.8.4"></a><h3>Example launch line</h3>
+<div class="informalexample">
+  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td class="listing_lines" align="right"><pre>1</pre></td>
+        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch<span class="gtkdoc opt">-</span><span class="number">1.0</span> filesrc location<span class="gtkdoc opt">=</span>abc<span class="gtkdoc opt">.</span>wav <span class="gtkdoc opt">!</span> wavparse <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> audioresample <span class="gtkdoc opt">!</span> amrnbenc <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>abc<span class="gtkdoc opt">.</span>amr</pre></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+Please note that the above stream misses the header, that is needed to play
+the stream.
+</div>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="id-1.2.4.8.2.1"></a><h3>Element Information</h3>
+<a name="id-1.2.4.8.5.1"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -109,7 +127,7 @@ GstAmrnbEnc implements
 </div>
 <hr>
 <div class="refsect2">
-<a name="id-1.2.4.8.2.2"></a><h3>Element Pads</h3>
+<a name="id-1.2.4.8.5.2"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0" class="variablelist">
 <colgroup>
 <col align="left" valign="top">
@@ -181,6 +199,10 @@ GstAmrnbEnc implements
 <p>Flags: Read / Write / Construct</p>
 <p>Default value: MR122</p>
 </div>
+</div>
+<div class="refsect1">
+<a name="gst-plugins-ugly-plugins-amrnbenc.see-also"></a><h2>See Also</h2>
+<p><a class="link" href="gst-plugins-ugly-plugins-amrnbdec.html#GstAmrnbDec"><span class="type">GstAmrnbDec</span></a>, <span class="type">GstAmrnbParse</span></p>
 </div>
 </div>
 <div class="footer">
