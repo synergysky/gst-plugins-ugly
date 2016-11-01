@@ -128,12 +128,12 @@ gst_asf_demux_class_init (GstASFDemuxClass * klass)
       "Codec/Demuxer",
       "Demultiplexes ASF Streams", "Owen Fraser-Green <owen@discobabe.net>");
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&audio_src_template));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&video_src_template));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&gst_asf_demux_sink_template));
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &audio_src_template);
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &video_src_template);
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &gst_asf_demux_sink_template);
 
   gstelement_class->change_state =
       GST_DEBUG_FUNCPTR (gst_asf_demux_change_state);
@@ -449,9 +449,7 @@ gst_asf_demux_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
       }
       flow = gst_asf_demux_push_complete_payloads (demux, TRUE);
       if (flow < GST_FLOW_EOS || flow == GST_FLOW_NOT_LINKED) {
-        GST_ELEMENT_ERROR (demux, STREAM, FAILED,
-            (_("Internal data stream error.")),
-            ("streaming stopped, reason %s", gst_flow_get_name (flow)));
+        GST_ELEMENT_FLOW_ERROR (demux, flow);
         break;
       }
 
@@ -2123,9 +2121,7 @@ pause:
     /* For the error cases */
     if (flow < GST_FLOW_EOS || flow == GST_FLOW_NOT_LINKED) {
       /* Post an error. Hopefully something else already has, but if not... */
-      GST_ELEMENT_ERROR (demux, STREAM, FAILED,
-          (_("Internal data stream error.")),
-          ("streaming stopped, reason %s", gst_flow_get_name (flow)));
+      GST_ELEMENT_FLOW_ERROR (demux, flow);
       gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
     }
 
@@ -2623,6 +2619,27 @@ gst_asf_demux_add_audio_stream (GstASFDemux * demux,
   if (codec_name) {
     tags = gst_tag_list_new (GST_TAG_AUDIO_CODEC, codec_name, NULL);
     g_free (codec_name);
+  }
+
+  if (audio->byte_rate > 0) {
+    /* Some ASF files have no bitrate props object (often seen with
+     * ASF files that contain raw audio data). Example files can
+     * be generated with FFmpeg (tested with v2.8.6), like this:
+     *
+     *   ffmpeg -i sine-wave.wav -c:a pcm_alaw file.asf
+     *
+     * In this case, if audio->byte_rate is nonzero, use that as
+     * the bitrate. */
+
+    guint bitrate = audio->byte_rate * 8;
+
+    if (tags == NULL)
+      tags = gst_tag_list_new_empty ();
+
+    /* Add bitrate, but only if there is none set already, since
+     * this is just a fallback in case there is no bitrate tag
+     * already present */
+    gst_tag_list_add (tags, GST_TAG_MERGE_KEEP, GST_TAG_BITRATE, bitrate, NULL);
   }
 
   if (extradata)

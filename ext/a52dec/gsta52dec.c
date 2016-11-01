@@ -38,9 +38,10 @@
 #endif
 
 #include <string.h>
-
 #include <stdlib.h>
-#include "_stdint.h"
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
 
 #include <gst/gst.h>
 
@@ -97,8 +98,8 @@ G_DEFINE_TYPE (GstA52Dec, gst_a52dec, GST_TYPE_AUDIO_DECODER);
 static gboolean gst_a52dec_start (GstAudioDecoder * dec);
 static gboolean gst_a52dec_stop (GstAudioDecoder * dec);
 static gboolean gst_a52dec_set_format (GstAudioDecoder * bdec, GstCaps * caps);
-static gboolean gst_a52dec_parse (GstAudioDecoder * dec, GstAdapter * adapter,
-    gint * offset, gint * length);
+static GstFlowReturn gst_a52dec_parse (GstAudioDecoder * dec,
+    GstAdapter * adapter, gint * offset, gint * length);
 static GstFlowReturn gst_a52dec_handle_frame (GstAudioDecoder * dec,
     GstBuffer * buffer);
 
@@ -185,10 +186,8 @@ gst_a52dec_class_init (GstA52DecClass * klass)
       g_param_spec_boolean ("lfe", "LFE", "LFE", TRUE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&sink_factory));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&src_factory));
+  gst_element_class_add_static_pad_template (gstelement_class, &sink_factory);
+  gst_element_class_add_static_pad_template (gstelement_class, &src_factory);
   gst_element_class_set_static_metadata (gstelement_class,
       "ATSC A/52 audio decoder", "Codec/Decoder/Audio",
       "Decodes ATSC A/52 encoded audio streams",
