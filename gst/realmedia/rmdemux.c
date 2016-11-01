@@ -197,12 +197,12 @@ gst_rmdemux_base_init (GstRMDemuxClass * klass)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_rmdemux_sink_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_rmdemux_videosrc_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_rmdemux_audiosrc_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_rmdemux_sink_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_rmdemux_videosrc_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_rmdemux_audiosrc_template);
   gst_element_class_set_static_metadata (element_class, "RealMedia Demuxer",
       "Codec/Demuxer",
       "Demultiplex a RealMedia file into audio and video streams",
@@ -967,8 +967,7 @@ need_pause:
         gst_rmdemux_send_event (rmdemux, gst_event_new_eos ());
       }
     } else if (ret == GST_FLOW_NOT_LINKED || ret < GST_FLOW_EOS) {
-      GST_ELEMENT_ERROR (rmdemux, STREAM, FAILED,
-          (NULL), ("stream stopped, reason %s", reason));
+      GST_ELEMENT_FLOW_ERROR (rmdemux, ret);
       gst_rmdemux_send_event (rmdemux, gst_event_new_eos ());
     }
     return;

@@ -5,7 +5,7 @@ dnl please read gstreamer/docs/random/autotools before changing this file
 dnl initialize autoconf
 dnl releases only do -Wall, cvs and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for cvs/prerelease
-AC_INIT([GStreamer Ugly Plug-ins],[1.8.3],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-ugly])
+AC_INIT([GStreamer Ugly Plug-ins],[1.9.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-ugly])
 
 AG_GST_INIT
 
@@ -42,11 +42,11 @@ AC_SUBST(GST_API_VERSION)
 AC_DEFINE_UNQUOTED(GST_API_VERSION, "$GST_API_VERSION",
   [GStreamer API Version])
 
-AS_LIBTOOL(GST, 803, 0, 803)
+AS_LIBTOOL(GST, 990, 0, 990)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.8.0
-GSTPB_REQ=1.8.0
+GST_REQ=1.9.90
+GSTPB_REQ=1.9.90
 
 dnl *** autotools stuff ****
 
@@ -339,7 +339,7 @@ AC_SUBST(MAD_LIBS)
 dnl *** mpeg2dec ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_MPEG2DEC, true)
 AG_GST_CHECK_FEATURE(MPEG2DEC, [mpeg2dec], mpeg2dec, [
-  AG_GST_PKG_CHECK_MODULES(MPEG2DEC, libmpeg2 >= 0.4.0)
+  AG_GST_PKG_CHECK_MODULES(MPEG2DEC, libmpeg2 >= 0.5.1)
 ])
 
 dnl *** mpg123 ***

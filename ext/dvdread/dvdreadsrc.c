@@ -23,11 +23,12 @@
 #include "config.h"
 #endif
 
-#include "_stdint.h"
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 
@@ -163,8 +164,7 @@ gst_dvd_read_src_class_init (GstDvdReadSrcClass * klass)
       g_param_spec_int ("angle", "angle", "angle",
           1, 999, 1, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&srctemplate));
+  gst_element_class_add_static_pad_template (gstelement_class, &srctemplate);
 
   gst_element_class_set_static_metadata (gstelement_class, "DVD Source",
       "Source/File/DVD",
