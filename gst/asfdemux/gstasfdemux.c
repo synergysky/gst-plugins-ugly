@@ -101,7 +101,7 @@ static void
 gst_asf_demux_process_queued_extended_stream_objects (GstASFDemux * demux);
 static gboolean gst_asf_demux_pull_headers (GstASFDemux * demux,
     GstFlowReturn * pflow);
-static void gst_asf_demux_pull_indices (GstASFDemux * demux);
+static GstFlowReturn gst_asf_demux_pull_indices (GstASFDemux * demux);
 static void gst_asf_demux_reset_stream_state_after_discont (GstASFDemux * asf);
 static gboolean
 gst_asf_demux_parse_data_object_start (GstASFDemux * demux, guint8 * data);
@@ -448,6 +448,13 @@ gst_asf_demux_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
         break;
       }
       flow = gst_asf_demux_push_complete_payloads (demux, TRUE);
+      if (!demux->activated_streams) {
+        /* If we still haven't got activated streams, the file is most likely corrupt */
+        GST_ELEMENT_ERROR (demux, STREAM, WRONG_TYPE,
+            (_("This stream contains no data.")),
+            ("got eos and didn't receive a complete header object"));
+        break;
+      }
       if (flow < GST_FLOW_EOS || flow == GST_FLOW_NOT_LINKED) {
         GST_ELEMENT_FLOW_ERROR (demux, flow);
         break;
@@ -893,15 +900,19 @@ typedef struct
 } AsfObject;
 
 
-/* expect is true when the user is expeting an object,
- * when false, it will give no warnings if the object
- * is not identified
+/* Peek for an object.
+ *
+ * Returns FALSE is the object is corrupted (such as the reported
+ * object size being greater than 2**32bits.
  */
 static gboolean
 asf_demux_peek_object (GstASFDemux * demux, const guint8 * data,
     guint data_len, AsfObject * object, gboolean expect)
 {
   ASFGuid guid;
+
+  /* Callers should have made sure that data_len is big enough */
+  g_assert (data_len >= ASF_OBJECT_HEADER_SIZE);
 
   if (data_len < ASF_OBJECT_HEADER_SIZE)
     return FALSE;
@@ -911,14 +922,20 @@ asf_demux_peek_object (GstASFDemux * demux, const guint8 * data,
   guid.v3 = GST_READ_UINT32_LE (data + 8);
   guid.v4 = GST_READ_UINT32_LE (data + 12);
 
-  object->size = GST_READ_UINT64_LE (data + 16);
-
   /* FIXME: make asf_demux_identify_object_guid() */
   object->id = gst_asf_demux_identify_guid (asf_object_guids, &guid);
   if (object->id == ASF_OBJ_UNDEFINED && expect) {
     GST_WARNING_OBJECT (demux, "Unknown object %08x-%08x-%08x-%08x",
         guid.v1, guid.v2, guid.v3, guid.v4);
   }
+
+  object->size = GST_READ_UINT64_LE (data + 16);
+  if (object->id != ASF_OBJ_DATA && object->size >= G_MAXUINT) {
+    GST_WARNING_OBJECT (demux,
+        "ASF Object size corrupted (greater than 32bit)");
+    return FALSE;
+  }
+
 
   return TRUE;
 }
@@ -942,17 +959,18 @@ gst_asf_demux_release_old_pads (GstASFDemux * demux)
 static GstFlowReturn
 gst_asf_demux_chain_headers (GstASFDemux * demux)
 {
-  GstFlowReturn flow;
   AsfObject obj;
   guint8 *header_data, *data = NULL;
   const guint8 *cdata = NULL;
   guint64 header_size;
+  GstFlowReturn flow = GST_FLOW_OK;
 
   cdata = (guint8 *) gst_adapter_map (demux->adapter, ASF_OBJECT_HEADER_SIZE);
   if (cdata == NULL)
     goto need_more_data;
 
-  asf_demux_peek_object (demux, cdata, ASF_OBJECT_HEADER_SIZE, &obj, TRUE);
+  if (!asf_demux_peek_object (demux, cdata, ASF_OBJECT_HEADER_SIZE, &obj, TRUE))
+    goto parse_failed;
   if (obj.id != ASF_OBJ_HEADER)
     goto wrong_type;
 
@@ -1047,29 +1065,36 @@ gst_asf_demux_pull_data (GstASFDemux * demux, guint64 offset, guint size,
   return TRUE;
 }
 
-static void
+static GstFlowReturn
 gst_asf_demux_pull_indices (GstASFDemux * demux)
 {
   GstBuffer *buf = NULL;
   guint64 offset;
   guint num_read = 0;
+  GstFlowReturn ret = GST_FLOW_OK;
 
   offset = demux->index_offset;
 
   if (G_UNLIKELY (offset == 0)) {
     GST_DEBUG_OBJECT (demux, "can't read indices, don't know index offset");
-    return;
+    /* non-fatal */
+    return GST_FLOW_OK;
   }
 
   while (gst_asf_demux_pull_data (demux, offset, 16 + 8, &buf, NULL)) {
-    GstFlowReturn flow;
     AsfObject obj;
     GstMapInfo map;
     guint8 *bufdata;
+    guint64 obj_size;
 
     gst_buffer_map (buf, &map, GST_MAP_READ);
     g_assert (map.size >= 16 + 8);
-    asf_demux_peek_object (demux, map.data, 16 + 8, &obj, TRUE);
+    if (!asf_demux_peek_object (demux, map.data, 16 + 8, &obj, TRUE)) {
+      gst_buffer_unmap (buf, &map);
+      gst_buffer_replace (&buf, NULL);
+      ret = GST_FLOW_ERROR;
+      break;
+    }
     gst_buffer_unmap (buf, &map);
     gst_buffer_replace (&buf, NULL);
 
@@ -1091,16 +1116,19 @@ gst_asf_demux_pull_indices (GstASFDemux * demux)
     gst_buffer_map (buf, &map, GST_MAP_READ);
     g_assert (map.size >= obj.size);
     bufdata = (guint8 *) map.data;
-    flow = gst_asf_demux_process_object (demux, &bufdata, &obj.size);
+    obj_size = obj.size;
+    ret = gst_asf_demux_process_object (demux, &bufdata, &obj_size);
     gst_buffer_unmap (buf, &map);
     gst_buffer_replace (&buf, NULL);
 
-    if (G_UNLIKELY (flow != GST_FLOW_OK))
+    if (G_UNLIKELY (ret != GST_FLOW_OK))
       break;
 
     ++num_read;
   }
+
   GST_DEBUG_OBJECT (demux, "read %u index objects", num_read);
+  return ret;
 }
 
 static gboolean
@@ -1108,7 +1136,10 @@ gst_asf_demux_parse_data_object_start (GstASFDemux * demux, guint8 * data)
 {
   AsfObject obj;
 
-  asf_demux_peek_object (demux, data, 50, &obj, TRUE);
+  if (!asf_demux_peek_object (demux, data, 50, &obj, TRUE)) {
+    GST_WARNING_OBJECT (demux, "Corrupted data");
+    return FALSE;
+  }
   if (obj.id != ASF_OBJ_DATA) {
     GST_WARNING_OBJECT (demux, "headers not followed by a DATA object");
     return FALSE;
@@ -1172,14 +1203,19 @@ gst_asf_demux_pull_headers (GstASFDemux * demux, GstFlowReturn * pflow)
 
   gst_buffer_map (buf, &map, GST_MAP_READ);
   g_assert (map.size >= 16 + 8);
-  asf_demux_peek_object (demux, map.data, 16 + 8, &obj, TRUE);
+  if (!asf_demux_peek_object (demux, map.data, 16 + 8, &obj, TRUE)) {
+    gst_buffer_unmap (buf, &map);
+    gst_buffer_replace (&buf, NULL);
+    flow = GST_FLOW_ERROR;
+    goto read_failed;
+  }
   gst_buffer_unmap (buf, &map);
   gst_buffer_replace (&buf, NULL);
 
   if (obj.id != ASF_OBJ_HEADER)
     goto wrong_type;
 
-  GST_LOG_OBJECT (demux, "header size = %u", (guint) obj.size);
+  GST_LOG_OBJECT (demux, "header size = %" G_GUINT64_FORMAT, obj.size);
 
   /* pull HEADER object */
   if (!gst_asf_demux_pull_data (demux, demux->base_offset, obj.size, &buf,
@@ -1245,6 +1281,8 @@ parse_failed:
     if (buf)
       gst_buffer_unmap (buf, &map);
     gst_buffer_replace (&buf, NULL);
+    if (flow == ASF_FLOW_NEED_MORE_DATA)
+      flow = GST_FLOW_ERROR;
     *pflow = flow;
     return FALSE;
   }
@@ -1493,7 +1531,7 @@ gst_asf_demux_update_caps_from_payload (GstASFDemux * demux, AsfStream * stream)
 static gboolean
 gst_asf_demux_check_activate_streams (GstASFDemux * demux, gboolean force)
 {
-  guint i;
+  guint i, actual_streams = 0;
 
   if (demux->activated_streams)
     return TRUE;
@@ -1522,9 +1560,16 @@ gst_asf_demux_check_activate_streams (GstASFDemux * demux, gboolean force)
        * a stream, then we active it, or we don't, then we'll ignore it */
       GST_LOG_OBJECT (stream->pad, "is prerolled - activate!");
       gst_asf_demux_activate_stream (demux, stream);
+      actual_streams += 1;
     } else {
       GST_LOG_OBJECT (stream->pad, "no data, ignoring stream");
     }
+  }
+
+  if (actual_streams == 0) {
+    /* We don't have any streams activated ! */
+    GST_ERROR_OBJECT (demux, "No streams activated!");
+    return FALSE;
   }
 
   gst_asf_demux_release_old_pads (demux);
@@ -1879,6 +1924,7 @@ gst_asf_demux_check_buffer_is_header (GstASFDemux * demux, GstBuffer * buf)
 {
   AsfObject obj;
   GstMapInfo map;
+  gboolean valid;
   g_assert (buf != NULL);
 
   GST_LOG_OBJECT (demux, "Checking if buffer is a header");
@@ -1892,9 +1938,11 @@ gst_asf_demux_check_buffer_is_header (GstASFDemux * demux, GstBuffer * buf)
   }
 
   /* check if it is a header */
-  asf_demux_peek_object (demux, map.data, ASF_OBJECT_HEADER_SIZE, &obj, TRUE);
+  valid =
+      asf_demux_peek_object (demux, map.data, ASF_OBJECT_HEADER_SIZE, &obj,
+      TRUE);
   gst_buffer_unmap (buf, &map);
-  if (obj.id == ASF_OBJ_HEADER) {
+  if (valid && obj.id == ASF_OBJ_HEADER) {
     return TRUE;
   }
   return FALSE;
@@ -1937,7 +1985,9 @@ gst_asf_demux_loop (GstASFDemux * demux)
       goto pause;
     }
 
-    gst_asf_demux_pull_indices (demux);
+    flow = gst_asf_demux_pull_indices (demux);
+    if (flow != GST_FLOW_OK)
+      goto pause;
   }
 
   g_assert (demux->state == GST_ASF_DEMUX_STATE_DATA);
@@ -2078,7 +2128,7 @@ eos:
      * less data queued than required for preroll; force stream activation and
      * send any pending payloads before sending EOS */
     if (!demux->activated_streams)
-      gst_asf_demux_push_complete_payloads (demux, TRUE);
+      flow = gst_asf_demux_push_complete_payloads (demux, TRUE);
 
     /* we want to push an eos or post a segment-done in any case */
     if (demux->segment.flags & GST_SEEK_FLAG_SEGMENT) {
@@ -2105,9 +2155,14 @@ eos:
     }
 
     if (!(demux->segment.flags & GST_SEEK_FLAG_SEGMENT)) {
-      /* normal playback, send EOS to all linked pads */
-      GST_INFO_OBJECT (demux, "Sending EOS, at end of stream");
-      gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
+      if (demux->activated_streams) {
+        /* normal playback, send EOS to all linked pads */
+        GST_INFO_OBJECT (demux, "Sending EOS, at end of stream");
+        gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
+      } else {
+        GST_WARNING_OBJECT (demux, "EOS without exposed streams");
+        flow = GST_FLOW_EOS;
+      }
     }
     /* ... and fall through to pause */
   }
@@ -2119,7 +2174,10 @@ pause:
     gst_pad_pause_task (demux->sinkpad);
 
     /* For the error cases */
-    if (flow < GST_FLOW_EOS || flow == GST_FLOW_NOT_LINKED) {
+    if (flow == GST_FLOW_EOS && !demux->activated_streams) {
+      GST_ELEMENT_ERROR (demux, STREAM, WRONG_TYPE, (NULL),
+          ("This doesn't seem to be an ASF file"));
+    } else if (flow < GST_FLOW_EOS || flow == GST_FLOW_NOT_LINKED) {
       /* Post an error. Hopefully something else already has, but if not... */
       GST_ELEMENT_FLOW_ERROR (demux, flow);
       gst_asf_demux_send_event_unlocked (demux, gst_event_new_eos ());
@@ -2162,12 +2220,11 @@ gst_asf_demux_check_header (GstASFDemux * demux)
   if (cdata == NULL)            /* need more data */
     return GST_ASF_DEMUX_CHECK_HEADER_NEED_DATA;
 
-  asf_demux_peek_object (demux, cdata, ASF_OBJECT_HEADER_SIZE, &obj, FALSE);
-  if (obj.id != ASF_OBJ_HEADER) {
-    return GST_ASF_DEMUX_CHECK_HEADER_NO;
-  } else {
+  if (asf_demux_peek_object (demux, cdata, ASF_OBJECT_HEADER_SIZE, &obj, FALSE
+          && obj.id == ASF_OBJ_HEADER))
     return GST_ASF_DEMUX_CHECK_HEADER_YES;
-  }
+
+  return GST_ASF_DEMUX_CHECK_HEADER_NO;
 }
 
 static GstFlowReturn
@@ -2449,6 +2506,11 @@ gst_asf_demux_get_stream_audio (asf_stream_audio * audio, guint8 ** p_data,
   audio->word_size = gst_asf_demux_get_uint16 (p_data, p_size);
   /* Codec specific data size */
   audio->size = gst_asf_demux_get_uint16 (p_data, p_size);
+  if (audio->size > *p_size) {
+    GST_WARNING ("Corrupted audio codec_data (should be at least %u bytes, is %"
+        G_GUINT64_FORMAT " long)", audio->size, *p_size);
+    return FALSE;
+  }
   return TRUE;
 }
 
@@ -2474,6 +2536,15 @@ gst_asf_demux_get_stream_video_format (asf_stream_video_format * fmt,
     return FALSE;
 
   fmt->size = gst_asf_demux_get_uint32 (p_data, p_size);
+  /* Sanity checks */
+  if (fmt->size < 40) {
+    GST_WARNING ("Corrupted asf_stream_video_format (size < 40)");
+    return FALSE;
+  }
+  if ((guint64) fmt->size - 4 > *p_size) {
+    GST_WARNING ("Corrupted asf_stream_video_format (codec_data is too small)");
+    return FALSE;
+  }
   fmt->width = gst_asf_demux_get_uint32 (p_data, p_size);
   fmt->height = gst_asf_demux_get_uint32 (p_data, p_size);
   fmt->planes = gst_asf_demux_get_uint16 (p_data, p_size);
@@ -2667,7 +2738,7 @@ gst_asf_demux_add_video_stream (GstASFDemux * demux,
   gchar *str;
   gchar *name = NULL;
   gchar *codec_name = NULL;
-  gint size_left = video->size - 40;
+  guint64 size_left = video->size - 40;
   GstBuffer *streamheader = NULL;
   guint par_w = 1, par_h = 1;
 
@@ -2678,7 +2749,9 @@ gst_asf_demux_add_video_stream (GstASFDemux * demux,
 
   /* Now try some gstreamer formatted MIME types (from gst_avi_demux_strf_vids) */
   if (size_left) {
-    GST_LOG ("Video header has %d bytes of codec specific data", size_left);
+    GST_LOG ("Video header has %" G_GUINT64_FORMAT
+        " bytes of codec specific data (vs %" G_GUINT64_FORMAT ")", size_left,
+        *p_size);
     g_assert (size_left <= *p_size);
     gst_asf_demux_get_buffer (&extradata, size_left, p_data, p_size);
   }
@@ -3558,7 +3631,7 @@ gst_asf_demux_process_header (GstASFDemux * demux, guint8 * data, guint64 size)
   unknown = gst_asf_demux_get_uint8 (&data, &size);
 
   GST_INFO_OBJECT (demux, "object is a header with %u parts", num_objects);
-
+  demux->saw_file_header = FALSE;
   /* Loop through the header's objects, processing those */
   for (i = 0; i < num_objects; ++i) {
     GST_INFO_OBJECT (demux, "reading header part %u", i);
@@ -3567,6 +3640,11 @@ gst_asf_demux_process_header (GstASFDemux * demux, guint8 * data, guint64 size)
       GST_WARNING ("process_object returned %s", gst_asf_get_flow_name (ret));
       break;
     }
+  }
+  if (!demux->saw_file_header) {
+    GST_ELEMENT_ERROR (demux, STREAM, DEMUX, (NULL),
+        ("Header does not have mandatory FILE section"));
+    return GST_FLOW_ERROR;
   }
 
   return ret;
@@ -3647,6 +3725,8 @@ gst_asf_demux_process_file (GstASFDemux * demux, guint8 * data, guint64 size)
   GST_INFO ("object is a file with %" G_GUINT64_FORMAT " data packets",
       packets_count);
   GST_INFO ("preroll = %" G_GUINT64_FORMAT, demux->preroll);
+
+  demux->saw_file_header = TRUE;
 
   return GST_FLOW_OK;
 
@@ -4086,9 +4166,12 @@ gst_asf_demux_process_ext_stream_props (GstASFDemux * demux, guint8 * data,
     goto done;
   }
 
+  if (size < ASF_OBJECT_HEADER_SIZE)
+    goto not_enough_data;
+
   /* get size of the stream object */
   if (!asf_demux_peek_object (demux, data, size, &stream_obj, TRUE))
-    goto not_enough_data;
+    goto corrupted_stream;
 
   if (stream_obj.id != ASF_OBJ_STREAM)
     goto expected_stream_object;
@@ -4167,6 +4250,11 @@ expected_stream_object:
         "object: expected embedded stream object, but got %s object instead!",
         gst_asf_get_guid_nick (asf_object_guids, stream_obj.id));
     return GST_FLOW_OK;         /* not absolutely fatal */
+  }
+corrupted_stream:
+  {
+    GST_WARNING_OBJECT (demux, "Corrupted stream");
+    return GST_FLOW_ERROR;
   }
 }
 
@@ -4301,7 +4389,9 @@ gst_asf_demux_process_object (GstASFDemux * demux, guint8 ** p_data,
   if (*p_size < ASF_OBJECT_HEADER_SIZE)
     return ASF_FLOW_NEED_MORE_DATA;
 
-  asf_demux_peek_object (demux, *p_data, ASF_OBJECT_HEADER_SIZE, &obj, TRUE);
+  if (!asf_demux_peek_object (demux, *p_data, ASF_OBJECT_HEADER_SIZE, &obj,
+          TRUE))
+    return GST_FLOW_ERROR;
   gst_asf_demux_skip_bytes (ASF_OBJECT_HEADER_SIZE, p_data, p_size);
 
   obj_data_size = obj.size - ASF_OBJECT_HEADER_SIZE;
