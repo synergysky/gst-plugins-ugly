@@ -172,9 +172,6 @@
 /* Define to enable lame mp3 encoder library (used by lame). */
 #undef HAVE_LAME
 
-/* Define to enable mad mp3 decoder (used by mad). */
-#undef HAVE_MAD
-
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 
@@ -231,6 +228,9 @@
 
 /* Define to enable x264 plug-in (used by x264). */
 #undef HAVE_X264
+
+/* Additional x264 libraries */
+#undef HAVE_X264_ADDITIONAL_LIBRARIES
 
 /* the host CPU */
 #undef HOST_CPU
