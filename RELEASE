@@ -1,15 +1,21 @@
 
-Release notes for GStreamer Ugly Plugins 1.10.2
+Release notes for GStreamer Ugly Plugins 1.11.1
 
-The GStreamer team is proud to announce the second bugfix release in the stable
-1.10 release series of your favourite cross-platform multimedia framework!
+The GStreamer team is pleased to announce the first release of the unstable
+1.11 release series. The 1.11 release series is adding new features on top of
+the 1.0, 1.2, 1.4, 1.6, 1.8 and 1.10 series and is part of the API and ABI-stable 1.x release
+series of the GStreamer multimedia framework. The unstable 1.11 release series
+will lead to the stable 1.12 release series in the next weeks. Any newly added
+API can still change until that point.
 
 
-This release only contains bugfixes and it is safe to update from 1.10.x. For a
-full list of bugfixes see Bugzilla.
+Full release notes will be provided at some point during the 1.11 release
+cycle, highlighting all the new features, bugfixes, performance optimizations
+and other important changes.
 
 
-See /releases/1.10/ for the full release notes.
+Binaries for Android, iOS, Mac OS X and Windows will be provided in the next days.
+
 
 
 "When you have to shoot, shoot.  Don't talk."
@@ -57,8 +63,11 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 774846 : asfdemux: Timeouts with corrupted files
-      * 775070 : asfdemux: ASF object size checks
+      * 751560 : x264enc: Add a youtube preset.
+      * 763297 : x264enc: Add parameter to explicitly load a specific x264 library
+      * 775228 : x264enc: Auto-detect interlace mode from caps
+      * 775411 : x264enc: Correctly pass interlacing/TFF information
+      * 776140 : Remove mad plugin
 
 ==== Download ====
 
@@ -96,6 +105,11 @@ subscribe to the gstreamer-devel list.
 Contributors to this release
     
       * Edward Hervey
+      * Mark Nauwelaerts
+      * Mathieu Duponchelle
+      * Scott D Phillips
       * Sebastian Dröge
+      * Thibault Saunier
       * Tim-Philipp Müller
+      * Vivia Nikolaidou
  
