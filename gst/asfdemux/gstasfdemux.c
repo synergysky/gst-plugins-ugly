@@ -3439,7 +3439,12 @@ gst_asf_demux_process_ext_content_desc (GstASFDemux * demux, guint8 * data,
           break;
         }
         case ASF_DEMUX_DATA_TYPE_DWORD:{
-          guint uint_val = GST_READ_UINT32_LE (value);
+          guint uint_val;
+
+          if (value_len < 4)
+            break;
+
+          uint_val = GST_READ_UINT32_LE (value);
 
           /* this is the track number */
           g_value_init (&tag_value, G_TYPE_UINT);
@@ -3453,7 +3458,12 @@ gst_asf_demux_process_ext_content_desc (GstASFDemux * demux, guint8 * data,
         }
           /* Detect 3D */
         case ASF_DEMUX_DATA_TYPE_BOOL:{
-          gboolean bool_val = GST_READ_UINT32_LE (value);
+          gboolean bool_val;
+
+          if (value_len < 4)
+            break;
+
+          bool_val = GST_READ_UINT32_LE (value);
 
           if (strncmp ("Stereoscopic", name_utf8, strlen (name_utf8)) == 0) {
             if (bool_val) {
@@ -3962,6 +3972,7 @@ not_enough_data:
     GST_WARNING_OBJECT (demux, "short read parsing language list object!");
     g_free (demux->languages);
     demux->languages = NULL;
+    demux->num_languages = 0;
     return GST_FLOW_OK;         /* not fatal */
   }
 }
