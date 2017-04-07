@@ -202,7 +202,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/common/cruft.mak $(top_srcdir)/common/po.mak \
 	$(top_srcdir)/common/release.mak ABOUT-NLS AUTHORS COPYING \
 	ChangeLog INSTALL NEWS README compile config.guess \
-	config.rpath config.sub depcomp install-sh ltmain.sh missing
+	config.rpath config.sub install-sh ltmain.sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -526,7 +526,8 @@ DISTCLEANFILES = _stdint.h
 CRUFT_FILES = \
 	$(top_builddir)/gst-plugins-ugly.spec \
 	$(top_builddir)/common/shave \
-	$(top_builddir)/common/shave-libtool
+	$(top_builddir)/common/shave-libtool \
+	$(top_builddir)/gst/realmedia/.libs/libgstrmdemux.so
 
 CRUFT_DIRS = \
 	$(top_srcdir)/docs/plugins/tmpl \

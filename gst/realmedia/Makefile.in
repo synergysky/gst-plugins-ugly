@@ -163,25 +163,26 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstrmdemux_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+libgstrealmedia_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-am_libgstrmdemux_la_OBJECTS = libgstrmdemux_la-rademux.lo \
-	libgstrmdemux_la-rmdemux.lo libgstrmdemux_la-rmutils.lo \
-	libgstrmdemux_la-rdtdepay.lo libgstrmdemux_la-rdtmanager.lo \
-	libgstrmdemux_la-rtspreal.lo libgstrmdemux_la-realhash.lo \
-	libgstrmdemux_la-asmrules.lo \
-	libgstrmdemux_la-rdtjitterbuffer.lo \
-	libgstrmdemux_la-gstrdtbuffer.lo libgstrmdemux_la-pnmsrc.lo \
-	libgstrmdemux_la-realmedia.lo
-libgstrmdemux_la_OBJECTS = $(am_libgstrmdemux_la_OBJECTS)
+am_libgstrealmedia_la_OBJECTS = libgstrealmedia_la-rademux.lo \
+	libgstrealmedia_la-rmdemux.lo libgstrealmedia_la-rmutils.lo \
+	libgstrealmedia_la-rdtdepay.lo \
+	libgstrealmedia_la-rdtmanager.lo \
+	libgstrealmedia_la-rtspreal.lo libgstrealmedia_la-realhash.lo \
+	libgstrealmedia_la-asmrules.lo \
+	libgstrealmedia_la-rdtjitterbuffer.lo \
+	libgstrealmedia_la-gstrdtbuffer.lo \
+	libgstrealmedia_la-pnmsrc.lo libgstrealmedia_la-realmedia.lo
+libgstrealmedia_la_OBJECTS = $(am_libgstrealmedia_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstrmdemux_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CCLD) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) \
-	$(libgstrmdemux_la_LDFLAGS) $(LDFLAGS) -o $@
+libgstrealmedia_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) \
+	$(libgstrealmedia_la_LDFLAGS) $(LDFLAGS) -o $@
 PROGRAMS = $(noinst_PROGRAMS)
 asmrules_SOURCES = asmrules.c
 asmrules_OBJECTS = asmrules-asmrules.$(OBJEXT)
@@ -223,8 +224,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstrmdemux_la_SOURCES) asmrules.c
-DIST_SOURCES = $(libgstrmdemux_la_SOURCES) asmrules.c
+SOURCES = $(libgstrealmedia_la_SOURCES) asmrules.c
+DIST_SOURCES = $(libgstrealmedia_la_SOURCES) asmrules.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -516,22 +517,22 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-plugin_LTLIBRARIES = libgstrmdemux.la
-libgstrmdemux_la_SOURCES = rademux.c rmdemux.c  \
+plugin_LTLIBRARIES = libgstrealmedia.la
+libgstrealmedia_la_SOURCES = rademux.c rmdemux.c  \
 			   rmutils.c rdtdepay.c rdtmanager.c \
 			   rtspreal.c realhash.c asmrules.c \
 			   rdtjitterbuffer.c gstrdtbuffer.c \
 			   pnmsrc.c realmedia.c
 
-libgstrmdemux_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
-libgstrmdemux_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
+libgstrealmedia_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
+libgstrealmedia_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
 				-lgstrtsp-@GST_API_VERSION@ \
 				-lgstsdp-@GST_API_VERSION@ \
 				-lgstpbutils-@GST_API_VERSION@ \
 				$(GST_BASE_LIBS) $(GST_LIBS)
 
-libgstrmdemux_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstrmdemux_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
+libgstrealmedia_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+libgstrealmedia_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = rademux.h rmdemux.h rmutils.h rdtdepay.h rdtmanager.h \
 		 rdtjitterbuffer.h rtspreal.h realhash.h asmrules.h gstrdtbuffer.h \
 		 pnmsrc.h
@@ -607,8 +608,8 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstrmdemux.la: $(libgstrmdemux_la_OBJECTS) $(libgstrmdemux_la_DEPENDENCIES) $(EXTRA_libgstrmdemux_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstrmdemux_la_LINK) -rpath $(plugindir) $(libgstrmdemux_la_OBJECTS) $(libgstrmdemux_la_LIBADD) $(LIBS)
+libgstrealmedia.la: $(libgstrealmedia_la_OBJECTS) $(libgstrealmedia_la_DEPENDENCIES) $(EXTRA_libgstrealmedia_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstrealmedia_la_LINK) -rpath $(plugindir) $(libgstrealmedia_la_OBJECTS) $(libgstrealmedia_la_LIBADD) $(LIBS)
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -630,18 +631,18 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asmrules-asmrules.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-asmrules.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-gstrdtbuffer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-pnmsrc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-rademux.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-rdtdepay.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-rdtjitterbuffer.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-rdtmanager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-realhash.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-realmedia.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-rmdemux.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-rmutils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrmdemux_la-rtspreal.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-asmrules.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-gstrdtbuffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-pnmsrc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-rademux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-rdtdepay.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-rdtjitterbuffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-rdtmanager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-realhash.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-realmedia.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-rmdemux.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-rmutils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstrealmedia_la-rtspreal.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -667,89 +668,89 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-libgstrmdemux_la-rademux.lo: rademux.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-rademux.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-rademux.Tpo -c -o libgstrmdemux_la-rademux.lo `test -f 'rademux.c' || echo '$(srcdir)/'`rademux.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-rademux.Tpo $(DEPDIR)/libgstrmdemux_la-rademux.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rademux.c' object='libgstrmdemux_la-rademux.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-rademux.lo: rademux.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-rademux.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-rademux.Tpo -c -o libgstrealmedia_la-rademux.lo `test -f 'rademux.c' || echo '$(srcdir)/'`rademux.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-rademux.Tpo $(DEPDIR)/libgstrealmedia_la-rademux.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rademux.c' object='libgstrealmedia_la-rademux.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-rademux.lo `test -f 'rademux.c' || echo '$(srcdir)/'`rademux.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-rademux.lo `test -f 'rademux.c' || echo '$(srcdir)/'`rademux.c
 
-libgstrmdemux_la-rmdemux.lo: rmdemux.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-rmdemux.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-rmdemux.Tpo -c -o libgstrmdemux_la-rmdemux.lo `test -f 'rmdemux.c' || echo '$(srcdir)/'`rmdemux.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-rmdemux.Tpo $(DEPDIR)/libgstrmdemux_la-rmdemux.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rmdemux.c' object='libgstrmdemux_la-rmdemux.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-rmdemux.lo: rmdemux.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-rmdemux.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-rmdemux.Tpo -c -o libgstrealmedia_la-rmdemux.lo `test -f 'rmdemux.c' || echo '$(srcdir)/'`rmdemux.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-rmdemux.Tpo $(DEPDIR)/libgstrealmedia_la-rmdemux.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rmdemux.c' object='libgstrealmedia_la-rmdemux.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-rmdemux.lo `test -f 'rmdemux.c' || echo '$(srcdir)/'`rmdemux.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-rmdemux.lo `test -f 'rmdemux.c' || echo '$(srcdir)/'`rmdemux.c
 
-libgstrmdemux_la-rmutils.lo: rmutils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-rmutils.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-rmutils.Tpo -c -o libgstrmdemux_la-rmutils.lo `test -f 'rmutils.c' || echo '$(srcdir)/'`rmutils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-rmutils.Tpo $(DEPDIR)/libgstrmdemux_la-rmutils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rmutils.c' object='libgstrmdemux_la-rmutils.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-rmutils.lo: rmutils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-rmutils.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-rmutils.Tpo -c -o libgstrealmedia_la-rmutils.lo `test -f 'rmutils.c' || echo '$(srcdir)/'`rmutils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-rmutils.Tpo $(DEPDIR)/libgstrealmedia_la-rmutils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rmutils.c' object='libgstrealmedia_la-rmutils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-rmutils.lo `test -f 'rmutils.c' || echo '$(srcdir)/'`rmutils.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-rmutils.lo `test -f 'rmutils.c' || echo '$(srcdir)/'`rmutils.c
 
-libgstrmdemux_la-rdtdepay.lo: rdtdepay.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-rdtdepay.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-rdtdepay.Tpo -c -o libgstrmdemux_la-rdtdepay.lo `test -f 'rdtdepay.c' || echo '$(srcdir)/'`rdtdepay.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-rdtdepay.Tpo $(DEPDIR)/libgstrmdemux_la-rdtdepay.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rdtdepay.c' object='libgstrmdemux_la-rdtdepay.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-rdtdepay.lo: rdtdepay.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-rdtdepay.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-rdtdepay.Tpo -c -o libgstrealmedia_la-rdtdepay.lo `test -f 'rdtdepay.c' || echo '$(srcdir)/'`rdtdepay.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-rdtdepay.Tpo $(DEPDIR)/libgstrealmedia_la-rdtdepay.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rdtdepay.c' object='libgstrealmedia_la-rdtdepay.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-rdtdepay.lo `test -f 'rdtdepay.c' || echo '$(srcdir)/'`rdtdepay.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-rdtdepay.lo `test -f 'rdtdepay.c' || echo '$(srcdir)/'`rdtdepay.c
 
-libgstrmdemux_la-rdtmanager.lo: rdtmanager.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-rdtmanager.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-rdtmanager.Tpo -c -o libgstrmdemux_la-rdtmanager.lo `test -f 'rdtmanager.c' || echo '$(srcdir)/'`rdtmanager.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-rdtmanager.Tpo $(DEPDIR)/libgstrmdemux_la-rdtmanager.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rdtmanager.c' object='libgstrmdemux_la-rdtmanager.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-rdtmanager.lo: rdtmanager.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-rdtmanager.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-rdtmanager.Tpo -c -o libgstrealmedia_la-rdtmanager.lo `test -f 'rdtmanager.c' || echo '$(srcdir)/'`rdtmanager.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-rdtmanager.Tpo $(DEPDIR)/libgstrealmedia_la-rdtmanager.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rdtmanager.c' object='libgstrealmedia_la-rdtmanager.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-rdtmanager.lo `test -f 'rdtmanager.c' || echo '$(srcdir)/'`rdtmanager.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-rdtmanager.lo `test -f 'rdtmanager.c' || echo '$(srcdir)/'`rdtmanager.c
 
-libgstrmdemux_la-rtspreal.lo: rtspreal.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-rtspreal.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-rtspreal.Tpo -c -o libgstrmdemux_la-rtspreal.lo `test -f 'rtspreal.c' || echo '$(srcdir)/'`rtspreal.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-rtspreal.Tpo $(DEPDIR)/libgstrmdemux_la-rtspreal.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rtspreal.c' object='libgstrmdemux_la-rtspreal.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-rtspreal.lo: rtspreal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-rtspreal.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-rtspreal.Tpo -c -o libgstrealmedia_la-rtspreal.lo `test -f 'rtspreal.c' || echo '$(srcdir)/'`rtspreal.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-rtspreal.Tpo $(DEPDIR)/libgstrealmedia_la-rtspreal.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rtspreal.c' object='libgstrealmedia_la-rtspreal.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-rtspreal.lo `test -f 'rtspreal.c' || echo '$(srcdir)/'`rtspreal.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-rtspreal.lo `test -f 'rtspreal.c' || echo '$(srcdir)/'`rtspreal.c
 
-libgstrmdemux_la-realhash.lo: realhash.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-realhash.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-realhash.Tpo -c -o libgstrmdemux_la-realhash.lo `test -f 'realhash.c' || echo '$(srcdir)/'`realhash.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-realhash.Tpo $(DEPDIR)/libgstrmdemux_la-realhash.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='realhash.c' object='libgstrmdemux_la-realhash.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-realhash.lo: realhash.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-realhash.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-realhash.Tpo -c -o libgstrealmedia_la-realhash.lo `test -f 'realhash.c' || echo '$(srcdir)/'`realhash.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-realhash.Tpo $(DEPDIR)/libgstrealmedia_la-realhash.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='realhash.c' object='libgstrealmedia_la-realhash.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-realhash.lo `test -f 'realhash.c' || echo '$(srcdir)/'`realhash.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-realhash.lo `test -f 'realhash.c' || echo '$(srcdir)/'`realhash.c
 
-libgstrmdemux_la-asmrules.lo: asmrules.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-asmrules.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-asmrules.Tpo -c -o libgstrmdemux_la-asmrules.lo `test -f 'asmrules.c' || echo '$(srcdir)/'`asmrules.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-asmrules.Tpo $(DEPDIR)/libgstrmdemux_la-asmrules.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='asmrules.c' object='libgstrmdemux_la-asmrules.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-asmrules.lo: asmrules.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-asmrules.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-asmrules.Tpo -c -o libgstrealmedia_la-asmrules.lo `test -f 'asmrules.c' || echo '$(srcdir)/'`asmrules.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-asmrules.Tpo $(DEPDIR)/libgstrealmedia_la-asmrules.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='asmrules.c' object='libgstrealmedia_la-asmrules.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-asmrules.lo `test -f 'asmrules.c' || echo '$(srcdir)/'`asmrules.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-asmrules.lo `test -f 'asmrules.c' || echo '$(srcdir)/'`asmrules.c
 
-libgstrmdemux_la-rdtjitterbuffer.lo: rdtjitterbuffer.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-rdtjitterbuffer.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-rdtjitterbuffer.Tpo -c -o libgstrmdemux_la-rdtjitterbuffer.lo `test -f 'rdtjitterbuffer.c' || echo '$(srcdir)/'`rdtjitterbuffer.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-rdtjitterbuffer.Tpo $(DEPDIR)/libgstrmdemux_la-rdtjitterbuffer.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rdtjitterbuffer.c' object='libgstrmdemux_la-rdtjitterbuffer.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-rdtjitterbuffer.lo: rdtjitterbuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-rdtjitterbuffer.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-rdtjitterbuffer.Tpo -c -o libgstrealmedia_la-rdtjitterbuffer.lo `test -f 'rdtjitterbuffer.c' || echo '$(srcdir)/'`rdtjitterbuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-rdtjitterbuffer.Tpo $(DEPDIR)/libgstrealmedia_la-rdtjitterbuffer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='rdtjitterbuffer.c' object='libgstrealmedia_la-rdtjitterbuffer.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-rdtjitterbuffer.lo `test -f 'rdtjitterbuffer.c' || echo '$(srcdir)/'`rdtjitterbuffer.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-rdtjitterbuffer.lo `test -f 'rdtjitterbuffer.c' || echo '$(srcdir)/'`rdtjitterbuffer.c
 
-libgstrmdemux_la-gstrdtbuffer.lo: gstrdtbuffer.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-gstrdtbuffer.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-gstrdtbuffer.Tpo -c -o libgstrmdemux_la-gstrdtbuffer.lo `test -f 'gstrdtbuffer.c' || echo '$(srcdir)/'`gstrdtbuffer.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-gstrdtbuffer.Tpo $(DEPDIR)/libgstrmdemux_la-gstrdtbuffer.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrdtbuffer.c' object='libgstrmdemux_la-gstrdtbuffer.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-gstrdtbuffer.lo: gstrdtbuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-gstrdtbuffer.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-gstrdtbuffer.Tpo -c -o libgstrealmedia_la-gstrdtbuffer.lo `test -f 'gstrdtbuffer.c' || echo '$(srcdir)/'`gstrdtbuffer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-gstrdtbuffer.Tpo $(DEPDIR)/libgstrealmedia_la-gstrdtbuffer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gstrdtbuffer.c' object='libgstrealmedia_la-gstrdtbuffer.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-gstrdtbuffer.lo `test -f 'gstrdtbuffer.c' || echo '$(srcdir)/'`gstrdtbuffer.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-gstrdtbuffer.lo `test -f 'gstrdtbuffer.c' || echo '$(srcdir)/'`gstrdtbuffer.c
 
-libgstrmdemux_la-pnmsrc.lo: pnmsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-pnmsrc.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-pnmsrc.Tpo -c -o libgstrmdemux_la-pnmsrc.lo `test -f 'pnmsrc.c' || echo '$(srcdir)/'`pnmsrc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-pnmsrc.Tpo $(DEPDIR)/libgstrmdemux_la-pnmsrc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pnmsrc.c' object='libgstrmdemux_la-pnmsrc.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-pnmsrc.lo: pnmsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-pnmsrc.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-pnmsrc.Tpo -c -o libgstrealmedia_la-pnmsrc.lo `test -f 'pnmsrc.c' || echo '$(srcdir)/'`pnmsrc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-pnmsrc.Tpo $(DEPDIR)/libgstrealmedia_la-pnmsrc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='pnmsrc.c' object='libgstrealmedia_la-pnmsrc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-pnmsrc.lo `test -f 'pnmsrc.c' || echo '$(srcdir)/'`pnmsrc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-pnmsrc.lo `test -f 'pnmsrc.c' || echo '$(srcdir)/'`pnmsrc.c
 
-libgstrmdemux_la-realmedia.lo: realmedia.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -MT libgstrmdemux_la-realmedia.lo -MD -MP -MF $(DEPDIR)/libgstrmdemux_la-realmedia.Tpo -c -o libgstrmdemux_la-realmedia.lo `test -f 'realmedia.c' || echo '$(srcdir)/'`realmedia.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrmdemux_la-realmedia.Tpo $(DEPDIR)/libgstrmdemux_la-realmedia.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='realmedia.c' object='libgstrmdemux_la-realmedia.lo' libtool=yes @AMDEPBACKSLASH@
+libgstrealmedia_la-realmedia.lo: realmedia.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -MT libgstrealmedia_la-realmedia.lo -MD -MP -MF $(DEPDIR)/libgstrealmedia_la-realmedia.Tpo -c -o libgstrealmedia_la-realmedia.lo `test -f 'realmedia.c' || echo '$(srcdir)/'`realmedia.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstrealmedia_la-realmedia.Tpo $(DEPDIR)/libgstrealmedia_la-realmedia.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='realmedia.c' object='libgstrealmedia_la-realmedia.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrmdemux_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrmdemux_la_CFLAGS) $(CFLAGS) -c -o libgstrmdemux_la-realmedia.lo `test -f 'realmedia.c' || echo '$(srcdir)/'`realmedia.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstrealmedia_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstrealmedia_la_CFLAGS) $(CFLAGS) -c -o libgstrealmedia_la-realmedia.lo `test -f 'realmedia.c' || echo '$(srcdir)/'`realmedia.c
 
 asmrules-asmrules.o: asmrules.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(asmrules_CFLAGS) $(CFLAGS) -MT asmrules-asmrules.o -MD -MP -MF $(DEPDIR)/asmrules-asmrules.Tpo -c -o asmrules-asmrules.o `test -f 'asmrules.c' || echo '$(srcdir)/'`asmrules.c
