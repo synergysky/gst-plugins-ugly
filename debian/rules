@@ -165,6 +165,9 @@ clean::
 		rm -f debian/$(gst_pkgname)-$$f; \
 	done
 
+common-install-impl::
+	find $(CURDIR)/debian/tmp/ -name '*.la' -print -delete
+
 common-binary-fixup-arch::
 	dh_gstscancodecs
 
@@ -172,5 +175,8 @@ DEB_INSTALL_DOCS_ALL += debian/README.Debian NEWS
 
 # Disable inclusion of large upstream ChangeLog
 DEB_INSTALL_CHANGELOGS_ALL :=
+
+# Fail when files aren't installed
+DEB_DH_INSTALL_ARGS := --fail-missing
 
 .PHONY: maint
