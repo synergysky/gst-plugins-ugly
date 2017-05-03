@@ -1,6 +1,8 @@
 gst-plugins-ugly1.0 (1.11.91-2) UNRELEASED; urgency=medium
 
   * debian/rules: Install with --fail-missing so we don't miss files.
+  * debian/control{,.in}: Provide C/R/P for -amr package to ease upgrades in
+    Ubuntu.
 
  -- Iain Lane <iain.lane@canonical.com>  Wed, 03 May 2017 10:38:44 +0100
 
