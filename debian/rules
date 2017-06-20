@@ -43,7 +43,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.10.0)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.12.0)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -136,6 +136,9 @@ debian/control:: debian/control.in debian/build-deps debian/mk.control debian/ru
 			sed 's/@GST_GCONF_LIB_DEV_DEP@/$(gst_gconf_lib_dev_dep)/g' >> $@; \
 	done
 
+space :=
+space +=
+X264_LIBRARY_PATHS := $(patsubst $(space),:,$(wildcard /usr/lib/*/x264-10bit/libx264.so.*))
 
 DEB_CONFIGURE_EXTRA_FLAGS += \
 	--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
@@ -143,7 +146,8 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--enable-DEBUG \
 	--enable-debug \
 	--with-package-name=$(GST_PACKAGE_NAME) \
-	--with-package-origin=$(GST_PACKAGE_ORIGIN)
+	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
+	--with-x264-libraries=$(X264_LIBRARY_PATHS)
 
 # only build the docs on arches which can
 ifeq (,$(findstring $(DEB_HOST_ARCH),m68k arm))
@@ -161,6 +165,9 @@ clean::
 		rm -f debian/$(gst_pkgname)-$$f; \
 	done
 
+common-install-impl::
+	find $(CURDIR)/debian/tmp/ -name '*.la' -print -delete
+
 common-binary-fixup-arch::
 	dh_gstscancodecs
 
@@ -168,5 +175,8 @@ DEB_INSTALL_DOCS_ALL += debian/README.Debian NEWS
 
 # Disable inclusion of large upstream ChangeLog
 DEB_INSTALL_CHANGELOGS_ALL :=
+
+# Fail when files aren't installed
+DEB_DH_INSTALL_ARGS := --fail-missing
 
 .PHONY: maint
