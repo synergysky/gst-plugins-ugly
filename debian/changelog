@@ -1,3 +1,9 @@
+gst-plugins-ugly1.0 (1.12.4-1) unstable; urgency=medium
+
+  * New upstream bugfix release
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 07 Dec 2017 19:49:42 +0200
+
 gst-plugins-ugly1.0 (1.12.3-1) unstable; urgency=medium
 
   * New upstream bugfix release
