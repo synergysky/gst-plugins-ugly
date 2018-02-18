@@ -6,12 +6,9 @@ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstcdio.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvdlpcmdec.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvdread.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstdvdsub.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstlame.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpeg2dec.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstmpg123.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrealmedia.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstsid.so
-debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgsttwolame.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstx264.so
 debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstxingmux.so
 debian/tmp/usr/share/locale
