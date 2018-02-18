@@ -26,22 +26,10 @@ else
 AMRNB =
 endif
 
-if USE_LAME
-LAME = pipelines/lame
-else
-LAME =
-endif
-
 if USE_MPEG2DEC
 MPEG2DEC = elements/mpeg2dec
 else
 MPEG2DEC =
-endif
-
-if USE_MPG123
-check_mpg123 = elements/mpg123audiodec
-else
-check_mpg123 =
 endif
 
 if USE_X264
@@ -60,9 +48,7 @@ endif
 check_PROGRAMS = \
 	generic/states \
 	$(AMRNB) \
-	$(LAME) \
 	$(MPEG2DEC) \
-	$(check_mpg123) \
 	$(check_x264enc) \
 	$(check_xingmux)
 
@@ -86,12 +72,8 @@ SUPPRESSIONS = $(top_srcdir)/common/gst.supp $(srcdir)/gst-plugins-ugly.supp
 elements_amrnbenc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(AM_CFLAGS)
 elements_amrnbenc_LDADD = $(GST_PLUGINS_BASE_LIBS) -lgstaudio-$(GST_API_VERSION) $(LDADD)
 
-elements_cmmldec_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(AM_CFLAGS)
-elements_cmmlenc_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(AM_CFLAGS)
-
-elements_mpg123audiodec_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
-elements_mpg123audiodec_LDADD = \
-	$(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
-	-lgstaudio-@GST_API_VERSION@ -lgstfft-@GST_API_VERSION@ -lgstapp-@GST_API_VERSION@
+elements_mpeg2dec_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(AM_CFLAGS)
+elements_mpeg2dec_LDADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) $(GST_LIBS) $(LDADD) \
+  -lgstvideo-@GST_API_VERSION@
 
 EXTRA_DIST = gst-plugins-ugly.supp

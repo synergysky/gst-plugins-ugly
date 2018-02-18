@@ -28,34 +28,16 @@ else
  DVDREAD_DIR =
 endif
 
-if USE_LAME
-LAME_DIR = lame
-else
-LAME_DIR =
-endif
-
 if USE_MPEG2DEC
 MPEG2DEC_DIR = mpeg2dec
 else
 MPEG2DEC_DIR =
 endif
 
-if USE_MPG123
-MPG123_DIR=mpg123
-else
-MPG123_DIR=
-endif
-
 if USE_SIDPLAY
 SIDPLAY_DIR = sidplay
 else
 SIDPLAY_DIR =
-endif
-
-if USE_TWOLAME
-TWOLAME_DIR = twolame
-else
-TWOLAME_DIR =
 endif
 
 if USE_X264
@@ -70,11 +52,8 @@ SUBDIRS = \
 	$(AMRWB_DIR) \
 	$(CDIO_DIR) \
 	$(DVDREAD_DIR) \
-	$(LAME_DIR) \
 	$(MPEG2DEC_DIR) \
-	$(MPG123_DIR) \
 	$(SIDPLAY_DIR) \
-	$(TWOLAME_DIR) \
 	$(X264_DIR)
 
 DIST_SUBDIRS = \
@@ -83,11 +62,8 @@ DIST_SUBDIRS = \
 	amrwbdec \
 	cdio \
 	dvdread \
-	lame \
 	mpeg2dec \
-	mpg123 \
 	sidplay \
-	twolame \
 	x264
 
 include $(top_srcdir)/common/parallel-subdirs.mak

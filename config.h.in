@@ -64,9 +64,6 @@
 /* GStreamer package release date/time for plugins as YYYY-MM-DD */
 #undef GST_PACKAGE_RELEASE_DATETIME
 
-/* Define if static plugins should be built */
-#undef GST_PLUGIN_BUILD_STATIC
-
 /* Define to enable a52dec (used by a52dec). */
 #undef HAVE_A52DEC
 
@@ -169,9 +166,6 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to enable lame mp3 encoder library (used by lame). */
-#undef HAVE_LAME
-
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
 
@@ -180,9 +174,6 @@
 
 /* Define to enable mpeg2dec (used by mpeg2dec). */
 #undef HAVE_MPEG2DEC
-
-/* Define to enable mpg123 audio decoder (used by mpg123). */
-#undef HAVE_MPG123
 
 /* Use Orc */
 #undef HAVE_ORC
@@ -213,9 +204,6 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
-
-/* Define to enable twolame (used by twolame). */
-#undef HAVE_TWOLAME
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H

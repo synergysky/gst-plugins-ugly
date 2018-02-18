@@ -59,9 +59,7 @@ EXTRA_HFILES = \
 	$(top_srcdir)/ext/amrnb/amrnbenc.h \
 	$(top_srcdir)/ext/amrwbdec/amrwbdec.h \
 	$(top_srcdir)/ext/cdio/gstcdiocddasrc.h \
-	$(top_srcdir)/ext/lame/gstlamemp3enc.h \
 	$(top_srcdir)/ext/sidplay/gstsiddec.h \
-	$(top_srcdir)/ext/twolame/gsttwolamemp2enc.h \
 	$(top_srcdir)/ext/x264/gstx264enc.h \
 	$(top_srcdir)/gst/asfdemux/gstrtspwms.h \
 	$(top_srcdir)/gst/xingmux/gstxingmux.h \

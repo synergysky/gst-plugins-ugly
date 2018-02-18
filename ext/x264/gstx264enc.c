@@ -367,6 +367,7 @@ enum
   ARG_PSY_TUNE,
   ARG_TUNE,
   ARG_FRAME_PACKING,
+  ARG_INSERT_VUI,
 };
 
 #define ARG_THREADS_DEFAULT            0        /* 0 means 'auto' which is 1.5x number of CPU cores */
@@ -408,6 +409,7 @@ static GString *x264enc_defaults;
 #define ARG_PSY_TUNE_DEFAULT           0        /* no psy tuning */
 #define ARG_TUNE_DEFAULT               0        /* no tuning */
 #define ARG_FRAME_PACKING_DEFAULT      -1       /* automatic (none, or from input caps) */
+#define ARG_INSERT_VUI_DEFAULT         TRUE
 
 enum
 {
@@ -938,6 +940,11 @@ gst_x264_enc_class_init (GstX264EncClass * klass)
           GST_X264_ENC_FRAME_PACKING_TYPE, ARG_FRAME_PACKING_DEFAULT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property (gobject_class, ARG_INSERT_VUI,
+      g_param_spec_boolean ("insert-vui", "Insert VUI",
+          "Insert VUI NAL in stream",
+          ARG_INSERT_VUI_DEFAULT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
   /* options for which we _do_ use string equivalents */
   g_object_class_install_property (gobject_class, ARG_THREADS,
       g_param_spec_uint ("threads", "Threads",
@@ -1015,7 +1022,7 @@ gst_x264_enc_class_init (GstX264EncClass * klass)
   g_object_class_install_property (gobject_class, ARG_BFRAMES,
       g_param_spec_uint ("bframes", "B-Frames",
           "Number of B-frames between I and P",
-          0, 4, ARG_BFRAMES_DEFAULT,
+          0, 16, ARG_BFRAMES_DEFAULT,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
   g_string_append_printf (x264enc_defaults, ":bframes=%d", ARG_BFRAMES_DEFAULT);
   g_object_class_install_property (gobject_class, ARG_B_ADAPT,
@@ -1223,6 +1230,7 @@ gst_x264_enc_init (GstX264Enc * encoder)
   encoder->psy_tune = ARG_PSY_TUNE_DEFAULT;
   encoder->tune = ARG_TUNE_DEFAULT;
   encoder->frame_packing = ARG_FRAME_PACKING_DEFAULT;
+  encoder->insert_vui = ARG_INSERT_VUI_DEFAULT;
 }
 
 typedef struct
@@ -1586,6 +1594,9 @@ gst_x264_enc_init_encoder (GstX264Enc * encoder)
     encoder->x264param.vui.i_vidformat = 5;     /* unspecified */
   }
 
+  if (!encoder->insert_vui)
+    goto skip_vui_parameters;
+
   switch (info->colorimetry.primaries) {
     case GST_VIDEO_COLOR_PRIMARIES_BT709:
       encoder->x264param.vui.i_colorprim = 1;
@@ -1689,9 +1700,18 @@ gst_x264_enc_init_encoder (GstX264Enc * encoder)
       break;
   }
 
+skip_vui_parameters:
 
   encoder->x264param.analyse.b_psnr = 0;
 
+  /* FIXME 2.0 make configuration more sane and consistent with x264 cmdline:
+   * + split pass property into a pass property (pass1/2/3 enum) and rc-method
+   * + bitrate property should only be used in case of CBR method
+   * + vbv bitrate/buffer should have separate configuration that is then
+   *   applied independently of the mode:
+   *    + either using properties (new) vbv-maxrate and (renamed) vbv-bufsize
+   *    + or dropping vbv-buf-capacity altogether and simply using option-string
+   */
   switch (encoder->pass) {
     case GST_X264_ENC_PASS_QUANT:
       encoder->x264param.rc.i_rc_method = X264_RC_CQP;
@@ -2206,6 +2226,7 @@ gst_x264_enc_set_format (GstVideoEncoder * video_enc,
         "downstream has ANY caps, outputting byte-stream");
     encoder->current_byte_stream = GST_X264_ENC_STREAM_FORMAT_BYTE_STREAM;
     g_string_append_printf (encoder->option_string, ":annexb=1");
+    gst_caps_unref (allowed_caps);
   } else if (allowed_caps) {
     GstStructure *s;
     const gchar *profile;
@@ -2739,6 +2760,9 @@ gst_x264_enc_set_property (GObject * object, guint prop_id,
     case ARG_FRAME_PACKING:
       encoder->frame_packing = g_value_get_enum (value);
       break;
+    case ARG_INSERT_VUI:
+      encoder->insert_vui = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -2878,6 +2902,9 @@ gst_x264_enc_get_property (GObject * object, guint prop_id,
     case ARG_FRAME_PACKING:
       g_value_set_enum (value, encoder->frame_packing);
       break;
+    case ARG_INSERT_VUI:
+      g_value_set_boolean (value, encoder->insert_vui);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -2904,11 +2931,13 @@ plugin_init (GstPlugin * plugin)
   default_vtable.x264_encoder_encode = x264_encoder_encode;
   default_vtable.x264_encoder_headers = x264_encoder_headers;
   default_vtable.x264_encoder_intra_refresh = x264_encoder_intra_refresh;
-  default_vtable.x264_encoder_maximum_delayed_frames = x264_encoder_maximum_delayed_frames;
+  default_vtable.x264_encoder_maximum_delayed_frames =
+      x264_encoder_maximum_delayed_frames;
   default_vtable.x264_encoder_open = x264_encoder_open;
   default_vtable.x264_encoder_reconfig = x264_encoder_reconfig;
   default_vtable.x264_levels = &x264_levels;
-  default_vtable.x264_param_apply_fastfirstpass = x264_param_apply_fastfirstpass;
+  default_vtable.x264_param_apply_fastfirstpass =
+      x264_param_apply_fastfirstpass;
   default_vtable.x264_param_apply_profile = x264_param_apply_profile;
   default_vtable.x264_param_default = x264_param_default;
   default_vtable.x264_param_default_preset = x264_param_default_preset;
