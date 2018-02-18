@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-ugly 1.12.4\n"
+"Project-Id-Version: gst-plugins-ugly 1.13.1\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2017-12-07 19:26+0200\n"
+"POT-Creation-Date: 2018-02-15 17:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,22 +58,6 @@ msgstr ""
 
 #: ext/dvdread/dvdreadsrc.c:994
 msgid "Could not read DVD."
-msgstr ""
-
-#: ext/lame/gstlamemp3enc.c:395
-msgid ""
-"Failed to configure LAME mp3 audio encoder. Check your encoding parameters."
-msgstr ""
-
-#: ext/lame/gstlamemp3enc.c:427 ext/twolame/gsttwolamemp2enc.c:488
-#, c-format
-msgid ""
-"The requested bitrate %d kbit/s for property '%s' is not allowed. The "
-"bitrate was changed to %d kbit/s."
-msgstr ""
-
-#: ext/twolame/gsttwolamemp2enc.c:411
-msgid "Failed to configure TwoLAME encoder. Check your encoding parameters."
 msgstr ""
 
 #: gst/asfdemux/gstasfdemux.c:446 gst/asfdemux/gstasfdemux.c:454

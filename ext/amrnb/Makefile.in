@@ -173,9 +173,9 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libgstamrnb_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstamrnb_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CCLD) $(libgstamrnb_la_CFLAGS) $(CFLAGS) \
-	$(libgstamrnb_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libgstamrnb_la_CFLAGS) $(CFLAGS) $(libgstamrnb_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -288,6 +288,7 @@ EGREP = @EGREP@
 ERROR_CFLAGS = @ERROR_CFLAGS@
 ERROR_CXXFLAGS = @ERROR_CXXFLAGS@
 EXEEXT = @EXEEXT@
+EXTRA_CFLAGS = @EXTRA_CFLAGS@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 GCOV = @GCOV@
@@ -339,7 +340,6 @@ GST_PLUGINS_DIR = @GST_PLUGINS_DIR@
 GST_PLUGINS_NONPORTED = @GST_PLUGINS_NONPORTED@
 GST_PLUGINS_SELECTED = @GST_PLUGINS_SELECTED@
 GST_PLUGIN_LDFLAGS = @GST_PLUGIN_LDFLAGS@
-GST_PLUGIN_LIBTOOLFLAGS = @GST_PLUGIN_LIBTOOLFLAGS@
 GST_PREFIX = @GST_PREFIX@
 GST_REVISION = @GST_REVISION@
 GST_TOOLS_DIR = @GST_TOOLS_DIR@
@@ -350,7 +350,6 @@ GTKDOC_MKPDF = @GTKDOC_MKPDF@
 GTKDOC_REBASE = @GTKDOC_REBASE@
 HAVE_CXX = @HAVE_CXX@
 HAVE_DVDREAD = @HAVE_DVDREAD@
-HAVE_LAME = @HAVE_LAME@
 HTML_DIR = @HTML_DIR@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -359,8 +358,6 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INTLLIBS = @INTLLIBS@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
-LAME_CFLAGS = @LAME_CFLAGS@
-LAME_LIBS = @LAME_LIBS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBICONV = @LIBICONV@
@@ -382,8 +379,6 @@ MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
 MPEG2DEC_CFLAGS = @MPEG2DEC_CFLAGS@
 MPEG2DEC_LIBS = @MPEG2DEC_LIBS@
-MPG123_CFLAGS = @MPG123_CFLAGS@
-MPG123_LIBS = @MPG123_LIBS@
 MSGFMT = @MSGFMT@
 MSGFMT_015 = @MSGFMT_015@
 MSGMERGE = @MSGMERGE@
@@ -426,13 +421,13 @@ SHELL = @SHELL@
 SIDPLAY_CFLAGS = @SIDPLAY_CFLAGS@
 SIDPLAY_LIBS = @SIDPLAY_LIBS@
 STRIP = @STRIP@
-TWOLAME_CFLAGS = @TWOLAME_CFLAGS@
-TWOLAME_LIBS = @TWOLAME_LIBS@
 USE_NLS = @USE_NLS@
 VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VALGRIND_PATH = @VALGRIND_PATH@
 VERSION = @VERSION@
+VISIBILITY_CFLAGS = @VISIBILITY_CFLAGS@
+VISIBILITY_CXXFLAGS = @VISIBILITY_CXXFLAGS@
 WARNING_CFLAGS = @WARNING_CFLAGS@
 WARNING_CXXFLAGS = @WARNING_CXXFLAGS@
 WIN32_LIBS = @WIN32_LIBS@
@@ -518,7 +513,6 @@ libgstamrnb_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) \
         $(GST_BASE_LIBS) $(GST_LIBS) $(AMRNB_LIBS)
 
 libgstamrnb_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstamrnb_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 noinst_HEADERS = \
 	amrnbdec.h \
 	amrnbenc.h
@@ -633,25 +627,25 @@ distclean-compile:
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
 libgstamrnb_la-amrnb.lo: amrnb.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstamrnb_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -MT libgstamrnb_la-amrnb.lo -MD -MP -MF $(DEPDIR)/libgstamrnb_la-amrnb.Tpo -c -o libgstamrnb_la-amrnb.lo `test -f 'amrnb.c' || echo '$(srcdir)/'`amrnb.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -MT libgstamrnb_la-amrnb.lo -MD -MP -MF $(DEPDIR)/libgstamrnb_la-amrnb.Tpo -c -o libgstamrnb_la-amrnb.lo `test -f 'amrnb.c' || echo '$(srcdir)/'`amrnb.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstamrnb_la-amrnb.Tpo $(DEPDIR)/libgstamrnb_la-amrnb.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='amrnb.c' object='libgstamrnb_la-amrnb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstamrnb_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -c -o libgstamrnb_la-amrnb.lo `test -f 'amrnb.c' || echo '$(srcdir)/'`amrnb.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -c -o libgstamrnb_la-amrnb.lo `test -f 'amrnb.c' || echo '$(srcdir)/'`amrnb.c
 
 libgstamrnb_la-amrnbdec.lo: amrnbdec.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstamrnb_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -MT libgstamrnb_la-amrnbdec.lo -MD -MP -MF $(DEPDIR)/libgstamrnb_la-amrnbdec.Tpo -c -o libgstamrnb_la-amrnbdec.lo `test -f 'amrnbdec.c' || echo '$(srcdir)/'`amrnbdec.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -MT libgstamrnb_la-amrnbdec.lo -MD -MP -MF $(DEPDIR)/libgstamrnb_la-amrnbdec.Tpo -c -o libgstamrnb_la-amrnbdec.lo `test -f 'amrnbdec.c' || echo '$(srcdir)/'`amrnbdec.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstamrnb_la-amrnbdec.Tpo $(DEPDIR)/libgstamrnb_la-amrnbdec.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='amrnbdec.c' object='libgstamrnb_la-amrnbdec.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstamrnb_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -c -o libgstamrnb_la-amrnbdec.lo `test -f 'amrnbdec.c' || echo '$(srcdir)/'`amrnbdec.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -c -o libgstamrnb_la-amrnbdec.lo `test -f 'amrnbdec.c' || echo '$(srcdir)/'`amrnbdec.c
 
 libgstamrnb_la-amrnbenc.lo: amrnbenc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstamrnb_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -MT libgstamrnb_la-amrnbenc.lo -MD -MP -MF $(DEPDIR)/libgstamrnb_la-amrnbenc.Tpo -c -o libgstamrnb_la-amrnbenc.lo `test -f 'amrnbenc.c' || echo '$(srcdir)/'`amrnbenc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -MT libgstamrnb_la-amrnbenc.lo -MD -MP -MF $(DEPDIR)/libgstamrnb_la-amrnbenc.Tpo -c -o libgstamrnb_la-amrnbenc.lo `test -f 'amrnbenc.c' || echo '$(srcdir)/'`amrnbenc.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstamrnb_la-amrnbenc.Tpo $(DEPDIR)/libgstamrnb_la-amrnbenc.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='amrnbenc.c' object='libgstamrnb_la-amrnbenc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstamrnb_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -c -o libgstamrnb_la-amrnbenc.lo `test -f 'amrnbenc.c' || echo '$(srcdir)/'`amrnbenc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstamrnb_la_CFLAGS) $(CFLAGS) -c -o libgstamrnb_la-amrnbenc.lo `test -f 'amrnbenc.c' || echo '$(srcdir)/'`amrnbenc.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

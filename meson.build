@@ -1,16 +1,16 @@
 project('gst-plugins-ugly', 'c',
-  version : '1.12.4',
+  version : '1.13.1',
   meson_version : '>= 0.36.0',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
 
 gst_version = meson.project_version()
 version_arr = gst_version.split('.')
-gst_version_major = version_arr[0]
-gst_version_minor = version_arr[1]
-gst_version_micro = version_arr[2]
-if version_arr.length() == 4
-  gst_version_nano = version_arr[3]
+gst_version_major = version_arr[0].to_int()
+gst_version_minor = version_arr[1].to_int()
+gst_version_micro = version_arr[2].to_int()
+ if version_arr.length() == 4
+  gst_version_nano = version_arr[3].to_int()
 else
   gst_version_nano = 0
 endif
@@ -40,6 +40,16 @@ if cc.get_id() == 'msvc'
   noseh_link_args = ['/SAFESEH:NO']
 else
   noseh_link_args = []
+endif
+
+# Symbol visibility
+if cc.has_argument('-fvisibility=hidden')
+  add_project_arguments('-fvisibility=hidden', language: 'c')
+endif
+
+# Disable strict aliasing
+if cc.has_argument('-fno-strict-aliasing')
+  add_project_arguments('-fno-strict-aliasing', language: 'c')
 endif
 
 cdata = configuration_data()
@@ -101,9 +111,21 @@ cdata.set('SIZEOF_VOIDP', cc.sizeof('void*'))
 cdata.set('VERSION', '"@0@"'.format(gst_version))
 cdata.set('PACKAGE', '"gst-plugins-ugly"')
 cdata.set('GETTEXT_PACKAGE', '"gst-plugins-ugly-1.0"')
-cdata.set('GST_PACKAGE_NAME', '"GStreamer Ugly Plug-ins"')
-cdata.set('GST_PACKAGE_ORIGIN', '"Unknown package origin"')
 cdata.set('GST_LICENSE', '"LGPL"')
+
+# GStreamer package name and origin url
+gst_package_name = get_option('with-package-name')
+if gst_package_name == ''
+  if gst_version_nano == 0
+    gst_package_name = 'GStreamer Ugly Plug-ins source release'
+  elif gst_version_nano == 1
+    gst_package_name = 'GStreamer Ugly Plug-ins git'
+  else
+    gst_package_name = 'GStreamer Ugly Plug-ins prerelease'
+  endif
+endif
+cdata.set_quoted('GST_PACKAGE_NAME', gst_package_name)
+cdata.set_quoted('GST_PACKAGE_ORIGIN', get_option('with-package-origin'))
 
 # Mandatory GST deps
 gst_dep = dependency('gstreamer-1.0', version : gst_req,
@@ -146,9 +168,7 @@ else
   cdata.set('DISABLE_ORC', 1)
 endif
 
-configure_file(input : 'config.h.meson',
-  output : 'config.h',
-  configuration : cdata)
+configure_file(output : 'config.h', configuration : cdata)
 
 ugly_args = ['-DHAVE_CONFIG_H']
 configinc = include_directories('.')
@@ -182,7 +202,11 @@ presetdir = join_paths(get_option('datadir'), 'gstreamer-' + api_version, 'prese
 subdir('gst')
 subdir('ext')
 subdir('tests')
-subdir('po')
 
-python3 = find_program('python3')
+# xgettext is optional (on Windows for instance)
+if find_program('xgettext', required : false).found()
+  subdir('po')
+endif
+
+python3 = import('python3').find_python()
 run_command(python3, '-c', 'import shutil; shutil.copy("hooks/pre-commit.hook", ".git/hooks/pre-commit")')
