@@ -1,3 +1,9 @@
+gst-plugins-ugly1.0 (1.13.90-1) experimental; urgency=medium
+
+  * New upstream release candidate.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 05 Mar 2018 10:15:17 +0200
+
 gst-plugins-ugly1.0 (1.13.1-1) experimental; urgency=medium
 
   * New upstream development release.
