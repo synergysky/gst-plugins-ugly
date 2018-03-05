@@ -1,5 +1,5 @@
 project('gst-plugins-ugly', 'c',
-  version : '1.13.1',
+  version : '1.13.90',
   meson_version : '>= 0.36.0',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -14,6 +14,8 @@ gst_version_micro = version_arr[2].to_int()
 else
   gst_version_nano = 0
 endif
+
+have_cxx = add_languages('cpp', required : false)
 
 glib_req = '>= 2.40.0'
 gst_req = '>= @0@.@1@.0'.format(gst_version_major, gst_version_minor)
@@ -175,28 +177,58 @@ configinc = include_directories('.')
 libsinc = include_directories('gst-libs')
 
 if gst_dep.type_name() == 'internal'
-    gst_proj = subproject('gstreamer')
-
-    if gst_proj.get_variable('disable_gst_debug')
-        message('GStreamer debug system is disabled')
-        add_project_arguments('-Wno-unused', language: 'c')
-    else
-        message('GStreamer debug system is enabled')
-    endif
+  gst_debug_disabled = subproject('gstreamer').get_variable('disable_gst_debug')
 else
-    # We can't check that in the case of subprojects as we won't
-    # be able to build against an internal dependency (which is not built yet)
-    if not cc.compiles('''
-#include <gst/gstconfig.h>
-#ifdef GST_DISABLE_GST_DEBUG
-#error "debugging disabled, make compiler fail"
-#endif''' , dependencies: gst_dep)
-        message('GStreamer debug system is disabled')
-        add_global_arguments('-Wno-unused', language: 'c')
-    else
-        message('GStreamer debug system is enabled')
-    endif
+  # We can't check that in the case of subprojects as we won't
+  # be able to build against an internal dependency (which is not built yet)
+  gst_debug_disabled = cc.has_header_symbol('gst/gstconfig.h', 'GST_DISABLE_GST_DEBUG', dependencies: gst_dep)
 endif
+
+if gst_debug_disabled and cc.has_argument('-Wno-unused')
+  add_project_arguments('-Wno-unused', language: 'c')
+endif
+
+warning_flags = [
+  '-Wmissing-declarations',
+  '-Wredundant-decls',
+  '-Wwrite-strings',
+  '-Wformat',
+  '-Wformat-nonliteral',
+  '-Wformat-security',
+  '-Winit-self',
+  '-Wmissing-include-dirs',
+  '-Waddress',
+  '-Wno-multichar',
+  '-Wvla',
+  '-Wpointer-arith',
+  '-Waggregate-return',
+]
+
+warning_c_flags = [
+  '-Wmissing-prototypes',
+  '-Wold-style-definition',
+  '-Wdeclaration-after-statement',
+  '-Wnested-externs'
+]
+
+if have_cxx
+  cxx = meson.get_compiler('cpp')
+endif
+
+foreach extra_arg : warning_flags
+  if cc.has_argument (extra_arg)
+    add_project_arguments([extra_arg], language: 'c')
+  endif
+  if have_cxx and cxx.has_argument (extra_arg)
+    add_project_arguments([extra_arg], language: 'cpp')
+  endif
+endforeach
+
+foreach extra_arg : warning_c_flags
+  if cc.has_argument (extra_arg)
+    add_project_arguments([extra_arg], language: 'c')
+  endif
+endforeach
 
 presetdir = join_paths(get_option('datadir'), 'gstreamer-' + api_version, 'presets')
 subdir('gst')
