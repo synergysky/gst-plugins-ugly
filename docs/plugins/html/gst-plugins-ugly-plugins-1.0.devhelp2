@@ -8,8 +8,8 @@
       <sub name="amrwbdec" link="gst-plugins-ugly-plugins-amrwbdec.html"/>
       <sub name="cdiocddasrc" link="gst-plugins-ugly-plugins-cdiocddasrc.html"/>
       <sub name="rademux" link="gst-plugins-ugly-plugins-rademux.html"/>
-      <sub name="rmdemux" link="gst-plugins-ugly-plugins-rmdemux.html"/>
       <sub name="rdtmanager" link="gst-plugins-ugly-plugins-rdtmanager.html"/>
+      <sub name="rmdemux" link="gst-plugins-ugly-plugins-rmdemux.html"/>
       <sub name="rtspreal" link="gst-plugins-ugly-plugins-rtspreal.html"/>
       <sub name="rtspwms" link="gst-plugins-ugly-plugins-rtspwms.html"/>
       <sub name="siddec" link="gst-plugins-ugly-plugins-siddec.html"/>
@@ -29,6 +29,7 @@
       <sub name="realmedia" link="gst-plugins-ugly-plugins-plugin-realmedia.html"/>
       <sub name="sid" link="gst-plugins-ugly-plugins-plugin-sid.html"/>
       <sub name="x264" link="gst-plugins-ugly-plugins-plugin-x264.html"/>
+      <sub name="xingmux" link="gst-plugins-ugly-plugins-plugin-xingmux.html"/>
     </sub>
   </chapters>
   <functions>
@@ -44,7 +45,6 @@
     <keyword type="struct" name="struct GstCdioCddaSrc" link="gst-plugins-ugly-plugins-cdiocddasrc.html#GstCdioCddaSrc-struct"/>
     <keyword type="property" name="The “read-speed” property" link="gst-plugins-ugly-plugins-cdiocddasrc.html#GstCdioCddaSrc--read-speed"/>
     <keyword type="struct" name="struct GstRealAudioDemux" link="gst-plugins-ugly-plugins-rademux.html#GstRealAudioDemux-struct"/>
-    <keyword type="struct" name="struct GstRMDemux" link="gst-plugins-ugly-plugins-rmdemux.html#GstRMDemux-struct"/>
     <keyword type="struct" name="struct GstRDTManager" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-struct"/>
     <keyword type="property" name="The “latency” property" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager--latency"/>
     <keyword type="signal" name="The “clear-pt-map” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-clear-pt-map"/>
@@ -53,6 +53,7 @@
     <keyword type="signal" name="The “on-timeout” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-on-timeout"/>
     <keyword type="signal" name="The “request-pt-map” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-request-pt-map"/>
     <keyword type="signal" name="The “on-npt-stop” signal" link="gst-plugins-ugly-plugins-rdtmanager.html#GstRDTManager-on-npt-stop"/>
+    <keyword type="struct" name="struct GstRMDemux" link="gst-plugins-ugly-plugins-rmdemux.html#GstRMDemux-struct"/>
     <keyword type="struct" name="struct GstRTSPReal" link="gst-plugins-ugly-plugins-rtspreal.html#GstRTSPReal-struct"/>
     <keyword type="struct" name="struct GstRTSPWMS" link="gst-plugins-ugly-plugins-rtspwms.html#GstRTSPWMS-struct"/>
     <keyword type="struct" name="struct GstSidDec" link="gst-plugins-ugly-plugins-siddec.html#GstSidDec-struct"/>
