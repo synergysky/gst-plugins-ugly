@@ -732,30 +732,16 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
    * forever */
   GST_PAD_STREAM_LOCK (demux->sinkpad);
 
-  /* we now can stop flushing, since we have the stream lock now */
-  fevent = gst_event_new_flush_stop (TRUE);
-  gst_event_set_seqnum (fevent, seqnum);
-  gst_pad_push_event (demux->sinkpad, gst_event_ref (fevent));
-
-  if (G_LIKELY (flush))
+  if (G_LIKELY (flush)) {
+    /* we now can stop flushing, since we have the stream lock now */
+    fevent = gst_event_new_flush_stop (TRUE);
+    gst_event_set_seqnum (fevent, seqnum);
+    gst_pad_push_event (demux->sinkpad, gst_event_ref (fevent));
     gst_asf_demux_send_event_unlocked (demux, fevent);
-  else
-    gst_event_unref (fevent);
+  }
 
   /* operating on copy of segment until we know the seek worked */
   segment = demux->segment;
-
-  if (G_UNLIKELY (demux->segment_running && !flush)) {
-    GstSegment newsegment;
-    GstEvent *newseg;
-
-    /* create the segment event to close the current segment */
-    gst_segment_copy_into (&segment, &newsegment);
-    newseg = gst_event_new_segment (&newsegment);
-    gst_event_set_seqnum (newseg, seqnum);
-
-    gst_asf_demux_send_event_unlocked (demux, newseg);
-  }
 
   gst_segment_do_seek (&segment, rate, format, flags, cur_type,
       cur, stop_type, stop, &only_need_update);
