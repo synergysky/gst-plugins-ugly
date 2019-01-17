@@ -133,7 +133,6 @@ struct _GstX264EncVTable
   const x264_level_t (*x264_levels)[];
   void (*x264_param_apply_fastfirstpass) (x264_param_t *);
   int (*x264_param_apply_profile) (x264_param_t *, const char *);
-  void (*x264_param_default) (x264_param_t *);
   int (*x264_param_default_preset) (x264_param_t *, const char *preset,
       const char *tune);
   int (*x264_param_parse) (x264_param_t *, const char *name, const char *value);
@@ -186,7 +185,6 @@ load_x264 (const gchar * filename)
   LOAD_SYMBOL (x264_levels);
   LOAD_SYMBOL (x264_param_apply_fastfirstpass);
   LOAD_SYMBOL (x264_param_apply_profile);
-  LOAD_SYMBOL (x264_param_default);
   LOAD_SYMBOL (x264_param_default_preset);
   LOAD_SYMBOL (x264_param_parse);
 
@@ -1520,12 +1518,6 @@ gst_x264_enc_init_encoder (GstX264Enc * encoder)
 
   g_assert (encoder->vtable != NULL);
 
-  encoder->vtable->x264_param_default (&encoder->x264param);
-  /* log callback setup; part of parameters */
-  encoder->x264param.pf_log = gst_x264_enc_log_callback;
-  encoder->x264param.p_log_private = encoder;
-  encoder->x264param.i_log_level = X264_LOG_DEBUG;
-
   gst_x264_enc_build_tunings_string (encoder);
 
   /* set x264 parameters and use preset/tuning if present */
@@ -1590,7 +1582,8 @@ gst_x264_enc_init_encoder (GstX264Enc * encoder)
   encoder->x264param.i_bitdepth = GST_VIDEO_INFO_COMP_DEPTH (info, 0);
 #endif
   encoder->x264param.i_csp =
-      gst_x264_enc_gst_to_x264_video_format (info->finfo->format, NULL);
+      gst_x264_enc_gst_to_x264_video_format (info->finfo->format,
+      &encoder->x264_nplanes);
   if (info->fps_d == 0 || info->fps_n == 0) {
     /* No FPS so must use VFR
      * This raises latency apparently see http://mewiki.project357.com/wiki/X264_Encoding_Suggestions */
@@ -2386,7 +2379,7 @@ gst_x264_enc_handle_frame (GstVideoEncoder * video_enc,
   x264_picture_t pic_in;
   gint i_nal, i;
   FrameData *fdata;
-  gint nplanes = 0;
+  gint nplanes = encoder->x264_nplanes;
 
   if (G_UNLIKELY (encoder->x264enc == NULL))
     goto not_inited;
@@ -2401,8 +2394,7 @@ gst_x264_enc_handle_frame (GstVideoEncoder * video_enc,
   if (!fdata)
     goto invalid_frame;
 
-  pic_in.img.i_csp =
-      gst_x264_enc_gst_to_x264_video_format (info->finfo->format, &nplanes);
+  pic_in.img.i_csp = encoder->x264param.i_csp;
   pic_in.img.i_plane = nplanes;
   for (i = 0; i < nplanes; i++) {
     pic_in.img.plane[i] = GST_VIDEO_FRAME_COMP_DATA (&fdata->vframe, i);
@@ -2976,7 +2968,6 @@ plugin_init (GstPlugin * plugin)
   default_vtable.x264_param_apply_fastfirstpass =
       x264_param_apply_fastfirstpass;
   default_vtable.x264_param_apply_profile = x264_param_apply_profile;
-  default_vtable.x264_param_default = x264_param_default;
   default_vtable.x264_param_default_preset = x264_param_default_preset;
   default_vtable.x264_param_parse = x264_param_parse;
 
