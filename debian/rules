@@ -47,7 +47,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.14.4)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.15.1)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -67,6 +67,8 @@ PLUGINS +=
 endif
 VERSIONIZE= \
 	plugins-ugly-doc.install \
+
+binaries := $(shell dh_listpackages)
 
 # debug package
 DEB_DH_STRIP_ARGS := --dbg-package=$(gst_pkgname)-plugins-ugly-dbg
@@ -153,11 +155,10 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
 	--with-x264-libraries=$(X264_LIBRARY_PATHS)
 
-# only build the docs on arches which can
-ifeq (,$(findstring $(DEB_HOST_ARCH),m68k arm))
+# Only build documentation if we are building the -doc package
+ifneq ($(filter $(gst_pkgname)-doc,$(binaries)),)
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-gtk-doc
 endif
-
 
 clean::
 	# get rid of the sym links
