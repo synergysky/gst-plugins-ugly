@@ -1,4 +1,4 @@
-amrnb_dep = dependency('opencore-amrnb', version : '>= 0.1.3', required : false)
+amrnb_dep = dependency('opencore-amrnb', version : '>= 0.1.3', required : get_option('amrnb'))
 
 if amrnb_dep.found()
   amrnb = library('gstamrnb',
@@ -9,5 +9,6 @@ if amrnb_dep.found()
     install : true,
     install_dir : plugins_install_dir,
   )
+  pkgconfig.generate(amrnb, install_dir : plugins_pkgconfig_install_dir)
   install_data(sources: 'GstAmrnbEnc.prs', install_dir: presetdir)
 endif
