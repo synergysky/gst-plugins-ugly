@@ -1,5 +1,5 @@
 project('gst-plugins-ugly', 'c',
-  version : '1.15.1',
+  version : '1.15.2',
   meson_version : '>= 0.47',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -147,7 +147,8 @@ gstcheck_dep = dependency('gstreamer-check-1.0', version : gst_req,
 gstcontroller_dep = dependency('gstreamer-controller-1.0', version : gst_req,
   fallback : ['gstreamer', 'gst_controller_dep'])
 
-orc_dep = dependency('orc-0.4', version : '>= 0.4.16', required : get_option('orc'))
+orc_dep = dependency('orc-0.4', version : '>= 0.4.16', required : get_option('orc'),
+    fallback : ['orc', 'orc_dep'])
 if orc_dep.found()
   cdata.set('HAVE_ORC', 1) # used by a52dec for cpu detection
 else
