@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-ugly 1.15.1\n"
+"Project-Id-Version: gst-plugins-ugly 1.15.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2019-01-17 02:02+0000\n"
+"POT-Creation-Date: 2019-02-26 11:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,8 +32,8 @@ msgstr ""
 msgid "Could not open DVD"
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:245 ext/dvdread/dvdreadsrc.c:622
-#: ext/dvdread/dvdreadsrc.c:629
+#: ext/dvdread/dvdreadsrc.c:245 ext/dvdread/dvdreadsrc.c:626
+#: ext/dvdread/dvdreadsrc.c:633
 #, c-format
 msgid "Could not open DVD title %d"
 msgstr ""
@@ -43,20 +43,20 @@ msgstr ""
 msgid "Failed to go to chapter %d of DVD title %d"
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:636
+#: ext/dvdread/dvdreadsrc.c:640
 #, c-format
 msgid ""
 "Could not open DVD title %d. Interactive titles are not supported by this "
 "element"
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:991
+#: ext/dvdread/dvdreadsrc.c:995
 msgid ""
 "Could not read DVD. This may be because the DVD is encrypted and a DVD "
 "decryption library is not installed."
 msgstr ""
 
-#: ext/dvdread/dvdreadsrc.c:994
+#: ext/dvdread/dvdreadsrc.c:998
 msgid "Could not read DVD."
 msgstr ""
 
