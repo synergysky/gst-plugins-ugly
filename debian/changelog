@@ -1,3 +1,9 @@
+gst-plugins-ugly1.0 (1.16.2-2) unstable; urgency=medium
+
+  * Source-only re-upload.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 09 Dec 2019 12:04:15 +0200
+
 gst-plugins-ugly1.0 (1.16.2-1) unstable; urgency=medium
 
   * New upstream release
