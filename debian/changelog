@@ -1,3 +1,11 @@
+gst-plugins-ugly1.0 (1.16.2-3) UNRELEASED; urgency=medium
+
+  * debian/rules:
+    + Don't point at (non-existing) 10bit version of x264 anymore, it's
+      part of the main library nowadays.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 20 Feb 2020 23:15:51 +0200
+
 gst-plugins-ugly1.0 (1.16.2-2) unstable; urgency=medium
 
   * Source-only re-upload.

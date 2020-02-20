@@ -144,7 +144,6 @@ debian/control:: debian/control.in debian/build-deps debian/mk.control debian/ru
 
 space :=
 space +=
-X264_LIBRARY_PATHS := $(patsubst $(space),:,$(wildcard /usr/lib/*/x264-10bit/libx264.so.*))
 
 DEB_CONFIGURE_EXTRA_FLAGS += \
 	--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
@@ -152,8 +151,7 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--enable-DEBUG \
 	--enable-debug \
 	--with-package-name=$(GST_PACKAGE_NAME) \
-	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
-	--with-x264-libraries=$(X264_LIBRARY_PATHS)
+	--with-package-origin=$(GST_PACKAGE_ORIGIN)
 
 # Only build documentation if we are building the -doc package
 ifneq ($(filter $(gst_pkgname)-doc,$(binaries)),)
