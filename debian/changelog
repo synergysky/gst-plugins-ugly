@@ -8,6 +8,7 @@ gst-plugins-ugly1.0 (1.16.2-3) UNRELEASED; urgency=medium
   [ Debian Janitor ]
   * Trim trailing whitespace.
   * Use secure copyright file specification URI.
+  * Wrap long lines in changelog entries: 1.15.1-1, 0.10.18-3.
 
  -- Sebastian Dröge <slomo@debian.org>  Thu, 20 Feb 2020 23:15:51 +0200
 
@@ -721,7 +722,8 @@ gst-plugins-ugly0.10 (0.10.18.2-1) experimental; urgency=low
 
 gst-plugins-ugly0.10 (0.10.18-3) unstable; urgency=low
 
-  * Add lame to the ugly plugin set as it's available in Debian now (Closes: #636065).
+  * Add lame to the ugly plugin set as it's available in Debian now
+    (Closes: #636065).
 
  -- Fabian Greffrath <fabian+debian@greffrath.com>  Fri, 29 Jul 2011 13:33:09 +0200
 
