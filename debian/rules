@@ -57,7 +57,7 @@ gst_extra_build_depends =
 # The plugins are basically the same.
 # Link special names to a template file.
 # still need "*.install" to be done by hand
-# 
+#
 # EXTRA_PLUGINS: See debian/README.Debian for docs
 EXTRA_PLUGINS +=
 
