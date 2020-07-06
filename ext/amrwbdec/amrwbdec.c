@@ -19,17 +19,17 @@
 
 /**
  * SECTION:element-amrwbdec
+ * @title: amrwbdec
  * @see_also: #GstAmrwbEnc
  *
- * AMR wideband decoder based on the 
- * <ulink url="http://sourceforge.net/projects/opencore-amr">opencore codec implementation</ulink>.
+ * AMR wideband decoder based on the
+ * [opencore codec implementation](http://sourceforge.net/projects/opencore-amr).
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 filesrc location=abc.amr ! amrparse ! amrwbdec ! audioconvert ! audioresample ! autoaudiosink
  * ]|
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H

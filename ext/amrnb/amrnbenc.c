@@ -19,19 +19,19 @@
 
 /**
  * SECTION:element-amrnbenc
+ * @title: amrnbenc
  * @see_also: #GstAmrnbDec, #GstAmrnbParse
  *
- * AMR narrowband encoder based on the 
- * <ulink url="http://sourceforge.net/projects/opencore-amr">opencore codec implementation</ulink>.
- * 
- * <refsect2>
- * <title>Example launch line</title>
+ * AMR narrowband encoder based on the
+ * [opencore codec implementation](http://sourceforge.net/projects/opencore-amr).
+ *
+ * ## Example launch line
  * |[
  * gst-launch-1.0 filesrc location=abc.wav ! wavparse ! audioconvert ! audioresample ! amrnbenc ! filesink location=abc.amr
  * ]|
  * Please note that the above stream misses the header, that is needed to play
  * the stream.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -164,6 +164,8 @@ gst_amrnbenc_class_init (GstAmrnbEncClass * klass)
 
   GST_DEBUG_CATEGORY_INIT (gst_amrnbenc_debug, "amrnbenc", 0,
       "AMR-NB audio encoder");
+
+  gst_type_mark_as_plugin_api (GST_AMRNBENC_BANDMODE_TYPE, 0);
 }
 
 static void

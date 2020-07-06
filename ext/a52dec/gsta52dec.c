@@ -19,18 +19,18 @@
 
 /**
  * SECTION:element-a52dec
+ * @title: a52dec
  *
  * Dolby Digital (AC-3) audio decoder.
  *
- * <refsect2>
- * <title>Example launch line</title>
+ * ## Example launch line
  * |[
  * gst-launch-1.0 dvdreadsrc title=1 ! mpegpsdemux ! a52dec ! audioconvert ! audioresample ! autoaudiosink
  * ]| Play audio part of a dvd title.
  * |[
  * gst-launch-1.0 filesrc location=abc.ac3 ! ac3parse ! a52dec ! audioconvert ! audioresample ! autoaudiosink
  * ]| Decode and play a stand alone AC-3 file.
- * </refsect2>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -189,7 +189,7 @@ gst_a52dec_class_init (GstA52DecClass * klass)
   gst_element_class_add_static_pad_template (gstelement_class, &sink_factory);
   gst_element_class_add_static_pad_template (gstelement_class, &src_factory);
   gst_element_class_set_static_metadata (gstelement_class,
-      "ATSC A/52 audio decoder", "Codec/Decoder/Audio",
+      "ATSC A/52 audio decoder", "Codec/Decoder/Audio/Converter",
       "Decodes ATSC A/52 encoded audio streams",
       "David I. Lehn <dlehn@users.sourceforge.net>");
 
@@ -217,6 +217,8 @@ gst_a52dec_class_init (GstA52DecClass * klass)
 #endif
 
   GST_LOG ("CPU flags: a52=%08x, orc=%08x", klass->a52_cpuflags, cpuflags);
+
+  gst_type_mark_as_plugin_api (GST_TYPE_A52DEC_MODE, 0);
 }
 
 static void

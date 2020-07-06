@@ -1,5 +1,6 @@
 x264_sources = [
   'gstx264enc.c',
+  'gstencoderbitrateprofilemanager.c',
 ]
 
 x264_dep = dependency('x264', required : get_option('x264'),
@@ -24,6 +25,7 @@ if x264_dep.found()
     install_dir : plugins_install_dir,
   )
   pkgconfig.generate(gstx264, install_dir : plugins_pkgconfig_install_dir)
+  plugins += [gstx264]
 
   install_data(sources: 'GstX264Enc.prs', install_dir: presetdir)
 endif
