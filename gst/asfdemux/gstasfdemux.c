@@ -79,6 +79,7 @@ GST_STATIC_PAD_TEMPLATE ("video_%u",
 
 GST_DEBUG_CATEGORY (asfdemux_dbg);
 
+static void gst_asf_demux_finalize (GObject * object);
 static GstStateChangeReturn gst_asf_demux_change_state (GstElement * element,
     GstStateChange transition);
 static gboolean gst_asf_demux_element_send_event (GstElement * element,
@@ -120,9 +121,13 @@ G_DEFINE_TYPE (GstASFDemux, gst_asf_demux, GST_TYPE_ELEMENT);
 static void
 gst_asf_demux_class_init (GstASFDemuxClass * klass)
 {
+  GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
 
+  gobject_class = G_OBJECT_CLASS (klass);
   gstelement_class = (GstElementClass *) klass;
+
+  gobject_class->finalize = gst_asf_demux_finalize;
 
   gst_element_class_set_static_metadata (gstelement_class, "ASF Demuxer",
       "Codec/Demuxer",
@@ -216,10 +221,12 @@ gst_asf_demux_reset (GstASFDemux * demux, gboolean chain_reset)
     gst_caps_unref (demux->metadata);
     demux->metadata = NULL;
   }
+  demux->metadata = gst_caps_new_empty ();
   if (demux->global_metadata) {
     gst_structure_free (demux->global_metadata);
     demux->global_metadata = NULL;
   }
+  demux->global_metadata = gst_structure_new_empty ("metadata");
   if (demux->mut_ex_streams) {
     g_slist_free (demux->mut_ex_streams);
     demux->mut_ex_streams = NULL;
@@ -291,8 +298,6 @@ gst_asf_demux_reset (GstASFDemux * demux, gboolean chain_reset)
     demux->segment_running = FALSE;
     demux->keyunit_sync = FALSE;
     demux->accurate = FALSE;
-    demux->metadata = gst_caps_new_empty ();
-    demux->global_metadata = gst_structure_new_empty ("metadata");
     demux->data_size = 0;
     demux->data_offset = 0;
     demux->index_offset = 0;
@@ -768,7 +773,7 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
     /* First try to query our source to see if it can convert for us. This is
        the case when our source is an mms stream, notice that in this case
        gstmms will do a time based seek to get the byte offset, this is not a
-       problem as the seek to this offset needs to happen anway. */
+       problem as the seek to this offset needs to happen anyway. */
     if (gst_pad_peer_query_convert (demux->sinkpad, GST_FORMAT_TIME, seek_time,
             GST_FORMAT_BYTES, &offset)) {
       packet = (offset - demux->data_offset) / demux->packet_size;
@@ -1434,7 +1439,7 @@ gst_asf_demux_get_first_ts (GstASFDemux * demux)
       /* there are some DVR ms files where first packet has TS of 0 (instead of -1) while subsequent packets have
          regular (singificantly larger) timestamps. If we don't deal with it, we may end up with huge gap in timestamps
          which makes playback stuck. The 0 timestamp may also be valid though, if the second packet timestamp continues 
-         from it. I havent found a better way to distinguish between these two, except to set an arbitrary boundary
+         from it. I haven't found a better way to distinguish between these two, except to set an arbitrary boundary
          and disregard the first 0 timestamp if the second timestamp is bigger than the boundary) */
 
       GST_DEBUG_OBJECT (demux,
@@ -2300,7 +2305,7 @@ gst_asf_demux_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
         GstAsfDemuxParsePacketError err;
 
         /* we don't know the length of the stream
-         * check for a chained asf everytime */
+         * check for a chained asf every time */
         if (demux->num_packets == 0) {
           gint result = gst_asf_demux_check_header (demux);
 
@@ -3166,6 +3171,7 @@ not_enough_data:
 static const gchar *
 gst_asf_demux_get_gst_tag_from_tag_name (const gchar * name_utf8)
 {
+  /* *INDENT-OFF* */
   const struct
   {
     const gchar *asf_name;
@@ -3175,12 +3181,14 @@ gst_asf_demux_get_gst_tag_from_tag_name (const gchar * name_utf8)
     "WM/Genre", GST_TAG_GENRE}, {
     "WM/AlbumTitle", GST_TAG_ALBUM}, {
     "WM/AlbumArtist", GST_TAG_ARTIST}, {
+    "WM/PartOfSet", GST_TAG_ALBUM_VOLUME_COUNT}, {
     "WM/Picture", GST_TAG_IMAGE}, {
     "WM/Track", GST_TAG_TRACK_NUMBER}, {
     "WM/TrackNumber", GST_TAG_TRACK_NUMBER}, {
     "WM/Year", GST_TAG_DATE_TIME}
     /* { "WM/Composer", GST_TAG_COMPOSER } */
   };
+  /* *INDENT-ON* */
   gsize out;
   guint i;
 
@@ -3299,6 +3307,7 @@ gst_asf_demux_process_ext_content_desc (GstASFDemux * demux, guint8 * data,
   guint16 blockcount, i;
   gboolean content3D = FALSE;
 
+  /* *INDENT-OFF* */
   struct
   {
     const gchar *interleave_name;
@@ -3311,6 +3320,8 @@ gst_asf_demux_process_ext_content_desc (GstASFDemux * demux, guint8 * data,
     "OverUnderLT", GST_ASF_3D_TOP_AND_BOTTOM_HALF_LR}, {
     "DualStream", GST_ASF_3D_DUAL_STREAM}
   };
+  /* *INDENT-ON* */
+
   GST_INFO_OBJECT (demux, "object is an extended content description");
 
   taglist = gst_tag_list_new_empty ();
@@ -3388,6 +3399,22 @@ gst_asf_demux_process_ext_content_desc (GstASFDemux * demux, guint8 * data,
                   GST_DEBUG ("Genre: %s -> %s", value_utf8, genre_str);
                   g_free (value_utf8);
                   value_utf8 = g_strdup (genre_str);
+                }
+              } else if (!strcmp (gst_tag_name, GST_TAG_ALBUM_VOLUME_COUNT)) {
+                guint num = 0, count = 0;
+
+                if (sscanf (value_utf8, "%u/%u", &num, &count) == 2
+                    && num > 0 && num <= 99999 && count > 0 && count <= 99999) {
+                  GST_DEBUG ("Disc %u of %u (%s)", num, count, value_utf8);
+                  g_value_init (&tag_value, G_TYPE_UINT);
+                  /* disc number */
+                  g_value_set_uint (&tag_value, num);
+                  gst_tag_list_add_values (taglist, GST_TAG_MERGE_APPEND,
+                      GST_TAG_ALBUM_VOLUME_NUMBER, &tag_value, NULL);
+                  /* disc count (will be added to the taglist below) */
+                  g_value_set_uint (&tag_value, count);
+                } else {
+                  GST_DEBUG ("Couldn't parse PartOfSet value %s", value_utf8);
                 }
               } else {
                 GType tag_type;
@@ -3778,6 +3805,7 @@ not_enough_data:
 static GstFlowReturn
 gst_asf_demux_process_comment (GstASFDemux * demux, guint8 * data, guint64 size)
 {
+  /* *INDENT-OFF* */
   struct
   {
     const gchar *gst_tag;
@@ -3791,6 +3819,7 @@ gst_asf_demux_process_comment (GstASFDemux * demux, guint8 * data, guint64 size)
     GST_TAG_DESCRIPTION, 0, NULL}, {
     GST_TAG_COMMENT, 0, NULL}
   };
+  /* *INDENT-ON* */
   GstTagList *taglist;
   GValue value = { 0 };
   gsize in, out;
@@ -4806,6 +4835,22 @@ gst_asf_demux_handle_src_query (GstPad * pad, GstObject * parent,
   return res;
 }
 
+static void
+gst_asf_demux_finalize (GObject * object)
+{
+  GstASFDemux *demux = GST_ASF_DEMUX (object);
+
+  if (demux->metadata)
+    gst_caps_unref (demux->metadata);
+  demux->metadata = NULL;
+
+  if (demux->global_metadata)
+    gst_structure_free (demux->global_metadata);
+  demux->global_metadata = NULL;
+
+  G_OBJECT_CLASS (parent_class)->finalize (object);
+}
+
 static GstStateChangeReturn
 gst_asf_demux_change_state (GstElement * element, GstStateChange transition)
 {
@@ -4820,8 +4865,6 @@ gst_asf_demux_change_state (GstElement * element, GstStateChange transition)
       demux->keyunit_sync = FALSE;
       demux->accurate = FALSE;
       demux->adapter = gst_adapter_new ();
-      demux->metadata = gst_caps_new_empty ();
-      demux->global_metadata = gst_structure_new_empty ("metadata");
       demux->data_size = 0;
       demux->data_offset = 0;
       demux->index_offset = 0;

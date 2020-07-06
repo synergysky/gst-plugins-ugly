@@ -30,12 +30,11 @@
  *
  * Seeking is not (and cannot be) implemented.
  *
- * <refsect2>
- * <title>Example pipelines</title>
+ * ## Example pipelines
+ *
  * |[
  * gst-launch-1.0 -v filesrc location=Hawkeye.sid ! siddec ! audioconvert ! audioresample ! autoaudiosink
  * ]| Decode a sid file and play it back.
- * </refsect2>
  */
 
 #ifdef HAVE_CONFIG_H
@@ -203,6 +202,9 @@ gst_siddec_class_init (GstSidDecClass * klass)
 
   GST_DEBUG_CATEGORY_INIT (gst_siddec_debug, "siddec", 0,
       "C64 sid song player");
+
+  gst_type_mark_as_plugin_api (GST_TYPE_SID_CLOCK, static_cast<GstPluginAPIFlags>(0));
+  gst_type_mark_as_plugin_api (GST_TYPE_SID_MEMORY, static_cast<GstPluginAPIFlags>(0));
 }
 
 static void
