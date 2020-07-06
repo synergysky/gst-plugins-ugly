@@ -1,5 +1,5 @@
 project('gst-plugins-ugly', 'c',
-  version : '1.16.0',
+  version : '1.16.2',
   meson_version : '>= 0.47',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -154,6 +154,8 @@ if orc_dep.found()
 else
   cdata.set('DISABLE_ORC', 1)
 endif
+
+gmodule_dep = dependency('gmodule-2.0', fallback : ['glib', 'libgmodule_dep'])
 
 ugly_args = ['-DHAVE_CONFIG_H']
 configinc = include_directories('.')
