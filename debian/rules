@@ -47,7 +47,7 @@ gst_abi=$(gst_major).$(gst_minor)
 gst_lib=libgstreamer$(gst_abi)-0
 gst_lib_dev=libgstreamer$(gst_abi)-dev
 # what gstreamer version is needed
-gst_lib_dev_dep=$(gst_lib_dev) (>= 1.16.0)
+gst_lib_dev_dep=$(gst_lib_dev) (>= 1.16.2)
 
 gst_pkgname=gstreamer$(gst_abi)
 gst_deb_abi=$(gst_abi)-0
@@ -57,7 +57,7 @@ gst_extra_build_depends =
 # The plugins are basically the same.
 # Link special names to a template file.
 # still need "*.install" to be done by hand
-# 
+#
 # EXTRA_PLUGINS: See debian/README.Debian for docs
 EXTRA_PLUGINS +=
 
@@ -144,7 +144,6 @@ debian/control:: debian/control.in debian/build-deps debian/mk.control debian/ru
 
 space :=
 space +=
-X264_LIBRARY_PATHS := $(patsubst $(space),:,$(wildcard /usr/lib/*/x264-10bit/libx264.so.*))
 
 DEB_CONFIGURE_EXTRA_FLAGS += \
 	--libdir=\$${prefix}/lib/$(DEB_HOST_MULTIARCH) \
@@ -152,8 +151,7 @@ DEB_CONFIGURE_EXTRA_FLAGS += \
 	--enable-DEBUG \
 	--enable-debug \
 	--with-package-name=$(GST_PACKAGE_NAME) \
-	--with-package-origin=$(GST_PACKAGE_ORIGIN) \
-	--with-x264-libraries=$(X264_LIBRARY_PATHS)
+	--with-package-origin=$(GST_PACKAGE_ORIGIN)
 
 # Only build documentation if we are building the -doc package
 ifneq ($(filter $(gst_pkgname)-doc,$(binaries)),)
