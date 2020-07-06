@@ -1,3 +1,10 @@
+gst-plugins-ugly1.0 (1.17.2-1) experimental; urgency=medium
+
+  * New upstream development release.
+  * Completely redo and modernize the packaging.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 06 Jul 2020 12:47:53 +0300
+
 gst-plugins-ugly1.0 (1.16.2-3) UNRELEASED; urgency=medium
 
   [ Sebastian Dröge ]
@@ -46,7 +53,7 @@ gst-plugins-ugly1.0 (1.16.0-2) unstable; urgency=medium
 
 gst-plugins-ugly1.0 (1.16.0-1) experimental; urgency=medium
 
-  * New upstream release
+  * New upstream stable release.
 
  -- Sebastian Dröge <slomo@debian.org>  Fri, 19 Apr 2019 10:21:44 +0300
 
