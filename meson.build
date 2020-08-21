@@ -1,5 +1,5 @@
 project('gst-plugins-ugly', 'c',
-  version : '1.17.2',
+  version : '1.17.90',
   meson_version : '>= 0.48',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -269,6 +269,35 @@ if find_program('xgettext', required : get_option('nls')).found()
 endif
 subdir('docs')
 
+# Set release date
+if gst_version_nano == 0
+  extract_release_date = find_program('scripts/extract-release-date-from-doap-file.py')
+  run_result = run_command(extract_release_date, gst_version, files('gst-plugins-ugly.doap'))
+  if run_result.returncode() == 0
+    release_date = run_result.stdout().strip()
+    cdata.set_quoted('GST_PACKAGE_RELEASE_DATETIME', release_date)
+    message('Package release date: ' + release_date)
+  else
+    # Error out if our release can't be found in the .doap file
+    error(run_result.stderr())
+  endif
+endif
+
 configure_file(output : 'config.h', configuration : cdata)
 
 run_command(python3, '-c', 'import shutil; shutil.copy("hooks/pre-commit.hook", ".git/hooks/pre-commit")')
+
+if meson.version().version_compare('>= 0.54')
+  plugin_names = []
+  foreach plugin: plugins
+    # FIXME: Use str.subtring() when we can depend on Meson 0.56
+    split = plugin.name().split('gst')
+    if split.length() == 2
+      plugin_names += [split[1]]
+    else
+      warning('Need substring API in meson >= 0.56 to properly parse plugin name: ' + plugin.name())
+      plugin_names += [plugin.name()]
+    endif
+  endforeach
+  summary({'Plugins':plugin_names}, list_sep: ', ')
+endif

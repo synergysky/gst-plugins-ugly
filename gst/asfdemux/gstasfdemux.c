@@ -647,6 +647,7 @@ gst_asf_demux_handle_seek_push (GstASFDemux * demux, GstEvent * event)
 static gboolean
 gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
 {
+  gboolean ret = TRUE;
   GstClockTime idx_time;
   GstSegment segment;
   GstSeekFlags flags;
@@ -671,11 +672,6 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
     GST_LOG_OBJECT (demux, "seeking is only supported in TIME format");
     return FALSE;
   }
-
-  /* upstream might handle TIME seek, e.g. mms or rtsp, or not, e.g. http,
-   * so first try to let it handle the seek event. */
-  if (gst_pad_push_event (demux->sinkpad, gst_event_ref (event)))
-    return TRUE;
 
   if (G_UNLIKELY (demux->seekable == FALSE || demux->packet_size == 0 ||
           demux->num_packets == 0 || demux->play_time == 0)) {
@@ -707,6 +703,11 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
   next = after && !before;
 
   if (G_UNLIKELY (demux->streaming)) {
+    /* upstream might handle TIME seek, e.g. mms or rtsp, or not, e.g. http,
+     * so first try to let it handle the seek event. */
+    if (gst_pad_push_event (demux->sinkpad, gst_event_ref (event)))
+      return TRUE;
+
     /* support it safely needs more segment handling, e.g. closing etc */
     if (!flush) {
       GST_LOG_OBJECT (demux, "streaming; non-flushing seek not supported");
@@ -748,8 +749,11 @@ gst_asf_demux_handle_seek_event (GstASFDemux * demux, GstEvent * event)
   /* operating on copy of segment until we know the seek worked */
   segment = demux->segment;
 
-  gst_segment_do_seek (&segment, rate, format, flags, cur_type,
-      cur, stop_type, stop, &only_need_update);
+  if (!gst_segment_do_seek (&segment, rate, format, flags, cur_type,
+          cur, stop_type, stop, &only_need_update)) {
+    ret = FALSE;
+    goto skip;
+  }
 
   GST_DEBUG_OBJECT (demux, "seeking to time %" GST_TIME_FORMAT ", segment: "
       "%" GST_SEGMENT_FORMAT, GST_TIME_ARGS (segment.start), &segment);
@@ -837,7 +841,7 @@ skip:
   /* streaming can continue now */
   GST_PAD_STREAM_UNLOCK (demux->sinkpad);
 
-  return TRUE;
+  return ret;
 }
 
 static gboolean
@@ -1400,9 +1404,12 @@ gst_asf_demux_check_segment_ts (GstASFDemux * demux, GstClockTime payload_ts)
     demux->segment_ts = payload_ts;
     /* always note, but only determines segment when streaming */
     if (demux->streaming)
-      gst_segment_do_seek (&demux->segment, demux->in_segment.rate,
-          GST_FORMAT_TIME, (GstSeekFlags) demux->segment.flags,
-          GST_SEEK_TYPE_SET, demux->segment_ts, GST_SEEK_TYPE_NONE, 0, NULL);
+      if (!gst_segment_do_seek (&demux->segment, demux->in_segment.rate,
+              GST_FORMAT_TIME, (GstSeekFlags) demux->segment.flags,
+              GST_SEEK_TYPE_SET, demux->segment_ts, GST_SEEK_TYPE_NONE, 0,
+              NULL)) {
+        GST_WARNING_OBJECT (demux, "Initial segment seek failed");
+      }
   }
 }
 
