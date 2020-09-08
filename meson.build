@@ -1,5 +1,5 @@
 project('gst-plugins-ugly', 'c',
-  version : '1.17.90',
+  version : '1.18.0',
   meson_version : '>= 0.48',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -268,6 +268,7 @@ if find_program('xgettext', required : get_option('nls')).found()
   subdir('po')
 endif
 subdir('docs')
+subdir('scripts')
 
 # Set release date
 if gst_version_nano == 0
