@@ -1,3 +1,11 @@
+gst-plugins-ugly1.0 (1.18.0-1) unstable; urgency=medium
+
+  * New upstream stable release.
+  * Upload to unstable (Closes: #963347).
+  * Merge changes from NMU 1.16.2-2.1 (Closes: #966827).
+
+ -- Sebastian Dröge <slomo@debian.org>  Tue, 08 Sep 2020 12:06:06 +0300
+
 gst-plugins-ugly1.0 (1.17.90-1) experimental; urgency=medium
 
   * New upstream release candidate.
@@ -26,6 +34,16 @@ gst-plugins-ugly1.0 (1.16.2-3) UNRELEASED; urgency=medium
     ./configure), Repository, Repository-Browse.
 
  -- Sebastian Dröge <slomo@debian.org>  Thu, 20 Feb 2020 23:15:51 +0200
+
+gst-plugins-ugly1.0 (1.16.2-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload
+
+  [ Gianfranco Costamagna ]
+  * Add some dependencies on libregexp-assemble-perl, libimage-exiftool-perl,
+    libfont-ttf-perl to fix a build failure (workaround for #963347)
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Sun, 02 Aug 2020 22:53:19 +0200
 
 gst-plugins-ugly1.0 (1.16.2-2) unstable; urgency=medium
 
