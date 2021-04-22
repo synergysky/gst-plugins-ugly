@@ -1,3 +1,9 @@
+gst-plugins-ugly1.0 (1.18.4-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 22 Apr 2021 20:56:11 +0300
+
 gst-plugins-ugly1.0 (1.18.4-1) experimental; urgency=medium
 
   [ Marc Leeman ]
